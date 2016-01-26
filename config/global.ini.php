@@ -448,6 +448,12 @@ multisites_refresh_after_seconds = 300
 ; set the HTTPS environment variable.
 assume_secure_protocol = 0
 
+; Set to 1 if you're using more than one server for your Piwik installation. For example if you are using Piwik in a
+; load balanced environment, if you have configured failover or if you're just using multiple servers in general.
+; By enabling this flag we will for example not allow the installation of a plugin via the UI as a plugin would be only
+; installed on one server or a config one change would be only made on one server instead of all servers.
+multi_server_environment = 0
+
 ; List of proxy headers for client IP addresses
 ;
 ; CloudFlare (CF-Connecting-IP)
