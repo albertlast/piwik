@@ -22,7 +22,7 @@ class Menu extends \Piwik\Plugin\Menu
     {
         if (Piwik::hasUserSuperUserAccess() && Marketplace::isMarketplaceEnabled()) {
             $menu->addManageItem('Marketplace_Marketplace',
-                $this->urlForAction('overview', array('activated' => '', 'mode' => 'admin')),
+                $this->urlForAction('overview', array('activated' => '', 'mode' => 'admin', 'type' => '', 'show' => '')),
                 $order = 12);
         }
     }
@@ -31,7 +31,7 @@ class Menu extends \Piwik\Plugin\Menu
     {
         if ($this->isAllowedToSeeMarketPlace()) {
             $menu->addPlatformItem('Marketplace_Marketplace',
-                                   $this->urlForAction('overview', array('activated' => '', 'mode' => 'user')),
+                                   $this->urlForAction('overview', array('activated' => '', 'mode' => 'user', 'type' => '', 'show' => '')),
                                    $order = 5);
         }
     }

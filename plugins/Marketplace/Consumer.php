@@ -70,11 +70,11 @@ class Consumer
         }
 
         if (empty($whitelist) && $this->hasAccessToPaidPlugins()) {
-            $githubOrgs = array('piwik');
+            $githubOrgs = array('Piwik');
             $distributor = $this->getDistributor();
 
             if (!empty($distributor)) {
-                $githubOrgs[] = strtolower($distributor->getGithubOrg());
+                $githubOrgs[] = $distributor->getGithubOrg();
             }
 
             return $githubOrgs;
@@ -84,7 +84,7 @@ class Consumer
 
         $githubOrgs = explode(',', $whitelist);
         foreach ($githubOrgs as $index => $githubOrg) {
-            $githubOrgs[$index] = strtolower($githubOrg);
+            $githubOrgs[$index] = $githubOrg;
         }
 
         return $githubOrgs;

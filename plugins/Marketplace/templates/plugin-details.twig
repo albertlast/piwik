@@ -38,7 +38,7 @@
                         {% elseif plugin.isInstalled %}
                         {% elseif 0 < plugin.missingRequirements|length %}
                         {% else %}
-                            <a href="{{ linkTo({'action': 'installPlugin', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
+                            <a href="{{ linkTo({'action': 'installPlugin', 'module': 'CorePluginsAdmin', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
                                class="install">{{ 'CorePluginsAdmin_ActionInstall'|translate }}</a>
                         {% endif %}
                     {% endif %}

@@ -11,6 +11,7 @@ namespace Piwik\Plugins\CorePluginsAdmin;
 use Exception;
 use Piwik\API\Request;
 use Piwik\Common;
+use Piwik\Container\StaticContainer;
 use Piwik\Exception\MissingFilePermissionException;
 use Piwik\Filechecks;
 use Piwik\Filesystem;
@@ -69,7 +70,7 @@ class Controller extends Plugin\ControllerAdmin
             return;
         }
 
-        $marketplace = new Plugins();
+        $marketplace = StaticContainer::get('Piwik\Plugins\Marketplace\Plugins');
         $view->plugin = $marketplace->getPluginInfo($pluginName);
 
         return $view;
@@ -188,7 +189,7 @@ class Controller extends Plugin\ControllerAdmin
 
         if (Marketplace::isMarketplaceEnabled()) {
             try {
-                $marketplace = new Plugins();
+                $marketplace = StaticContainer::get('Piwik\Plugins\Marketplace\Plugins');
                 $view->marketplacePluginNames = $marketplace->getAvailablePluginNames($themesOnly);
 
                 $pluginsHavingUpdate = $marketplace->getPluginsHavingUpdate(true);

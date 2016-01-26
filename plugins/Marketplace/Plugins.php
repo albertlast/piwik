@@ -94,6 +94,8 @@ class Plugins
             return false;
         }
 
+        $whitelistedDistributors = array_map('strtolower', $whitelistedDistributors);
+
         $owner = strtolower($plugin['owner']);
 
         return in_array($owner, $whitelistedDistributors, $strict = true);

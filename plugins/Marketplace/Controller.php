@@ -105,18 +105,31 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $mode = 'admin';
         }
 
+        // we're fetching all available plugins to decide which tabs need to be shown in the UI and to know the number
+        // of total available plugins
+        $freePlugins = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = false, 'free');
+        $paidPlugins = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = false, 'paid');
+        $allThemes   = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = true);
+
         $view = $this->configureView('@Marketplace/overview');
 
-        $showThemes = ($show === 'themes');
-        $showPaid = ($type === 'paid');
+        $showThemes   = ($show === 'themes');
+        $showPlugins = !$showThemes;
+        $showPaid    = ($type === 'paid');
+        $showFree    = !$showPaid;
 
-        $freePlugins = $this->plugins->searchPlugins($query, $sort, $themes = false, 'free');
-        $paidPlugins = $this->plugins->searchPlugins($query, $sort, $themes = false, 'paid');
-        $themes = $this->plugins->searchPlugins($query, $sort, $themes = true);
+        if ($showPaid && $showPlugins) {
+            $type = 'paid';
+        } elseif ($showFree && $showPlugins) {
+            $type = 'free';
+        } else {
+            $type = ''; // show all themes
+        }
+
+        $pluginsToShow = $this->plugins->searchPlugins($query, $sort, $showThemes, $type);
 
         $consumer = $this->consumer->getConsumer();
 
-        $view->distributor = $this->consumer->getDistributor();
         if (!empty($consumer['expireDate'])) {
             $expireDate = Date::factory($consumer['expireDate']);
             $consumer['expireDateLong'] = $expireDate->getLocalized(Date::DATE_FORMAT_LONG);
@@ -127,24 +140,18 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $consumer['expireDateDiff'] = $formatter->getPrettyTimeFromSeconds($seconds, $displayTimeAsSentence = true, $round = true);
         }
 
+        $view->distributor = $this->consumer->getDistributor();
         $view->whitelistedGithubOrgs = $this->consumer->getWhitelistedGithubOrgs();
         $view->hasAccessToPaidPlugins = $this->consumer->hasAccessToPaidPlugins();
-
-        if (!$showThemes && $showPaid) {
-            $view->plugins = $paidPlugins;
-        } elseif (!$showThemes) {
-            $view->plugins = $freePlugins;
-        } else {
-            $view->plugins = $themes;
-        }
-
+        $view->numAvailablePlugins = count($paidPlugins) + count($freePlugins) + count($allThemes);
+        $view->pluginsToShow = $pluginsToShow;
         $view->consumer = $consumer;
         $view->paidPlugins = $paidPlugins;
         $view->freePlugins = $freePlugins;
-        $view->themes = $themes;
+        $view->themes = $allThemes;
         $view->showThemes = $showThemes;
-        $view->showPlugins = !$showThemes;
-        $view->showFree = !$showPaid;
+        $view->showPlugins = $showPlugins;
+        $view->showFree = $showFree;
         $view->showPaid = $showPaid;
         $view->mode = $mode;
         $view->query = $query;

@@ -1,11 +1,11 @@
 <div class="row marketplace-max-width">
 
     {# Hide filters and search for themes because we don't have many of them #}
-    {% if (plugins|length) > 20 or query %}
+    {% if (pluginsToShow|length) > 20 or query %}
         <div class="col-sm-12 clearfix">
 
             <form action="{{ linkTo({'sort': ''}) }}" method="post" class="plugin-search">
-                <input value="{{ query }}" placeholder="{{ 'General_Search'|translate }} {{ plugins|length }} {{ 'General_Plugins'|translate|lcfirst }}..." type="text" name="query"/>
+                <input value="{{ query }}" placeholder="{{ 'General_Search'|translate }} {{ numAvailablePlugins }} {{ 'General_Plugins'|translate|lcfirst }}..." type="text" name="query"/>
                 <button type="submit">{{ 'General_Search'|translate }}</button>
             </form>
 
@@ -30,16 +30,7 @@
         </div>
     {% endif %}
 
-    {% if showFree and whitelistedGithubOrgs and distributor and distributor.getName %}
-        <div class="col-sm-12 clearfix">
-            <div class="alert alert-info">
-                As a <a href="{{ distributor.getHomepage|e('html_attr') }}">{{ distributor.getName }}</a> client you can only install plugins developed by {{ whitelistedGithubOrgs|join(' and ') }} to ensure your
-                Piwik is stable and safe.
-            </div>
-        </div>
-    {% endif %}
-
-    {% if plugins|length == 0 %}
+    {% if pluginsToShow|length == 0 %}
         <div class="col-sm-12 clearfix">
             {% if showThemes %}
                 {{ 'CorePluginsAdmin_NoThemesFound'|translate }}
@@ -49,7 +40,7 @@
         </div>
     {% endif %}
 
-    {% for plugin in plugins %}
+    {% for plugin in pluginsToShow %}
 
         <div class="col-md-4">
             <div class="panel plugin">
@@ -115,7 +106,7 @@
                                 {{ 'CorePluginsAdmin_CannotInstall'|translate }}
                             </a>
                         {% else %}
-                            <a href="{{ linkTo({'action': 'installPlugin', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
+                            <a href="{{ linkTo({'action': 'installPlugin','module': 'CorePluginsAdmin', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
                                class="btn btn-block">
                                 {{ 'CorePluginsAdmin_ActionInstall'|translate }}
                             </a>

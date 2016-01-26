@@ -34,7 +34,7 @@ class PluginInstaller
     public function __construct($pluginName)
     {
         $this->pluginName = $pluginName;
-        $this->marketplaceApi = StaticContainer::get('Piwik\Plugins\Marketplace\MarketplaceApi');
+        $this->marketplaceApi = StaticContainer::get('Piwik\Plugins\Marketplace\Api\Client');
     }
 
     public function installOrUpdatePluginFromMarketplace()
@@ -118,7 +118,7 @@ class PluginInstaller
         } catch (\Exception $e) {
 
             try {
-                $downloadUrl = $marketplace->getDownloadUrl($this->pluginName);
+                $downloadUrl = $this->marketplaceApi->getDownloadUrl($this->pluginName);
                 $errorMessage = sprintf('Failed to download plugin from %s: %s', $downloadUrl, $e->getMessage());
 
             } catch (\Exception $ex) {
