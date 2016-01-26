@@ -14,6 +14,7 @@ use Piwik\Filesystem;
 use Piwik\Piwik;
 use Piwik\Plugin\Dependency as PluginDependency;
 use Piwik\Unzip;
+use Piwik\Plugins\Marketplace\Api\Client;
 
 /**
  *
@@ -25,9 +26,15 @@ class PluginInstaller
 
     private $pluginName;
 
+    /**
+     * @var Client
+     */
+    private $marketplaceApi;
+
     public function __construct($pluginName)
     {
         $this->pluginName = $pluginName;
+        $this->marketplaceApi = StaticContainer::get('Piwik\Plugins\Marketplace\MarketplaceApi');
     }
 
     public function installOrUpdatePluginFromMarketplace()
@@ -106,10 +113,8 @@ class PluginInstaller
     {
         $this->removeFileIfExists($pluginZipTargetFile);
 
-        $marketplace = new MarketplaceApiClient();
-
         try {
-            $marketplace->download($this->pluginName, $pluginZipTargetFile);
+            $this->marketplaceApi->download($this->pluginName, $pluginZipTargetFile);
         } catch (\Exception $e) {
 
             try {
@@ -291,8 +296,7 @@ class PluginInstaller
     private function makeSurePluginNameIsValid()
     {
         try {
-            $marketplace = new MarketplaceApiClient();
-            $pluginDetails = $marketplace->getPluginInfo($this->pluginName);
+            $pluginDetails = $this->marketplaceApi->getPluginInfo($this->pluginName);
         } catch (\Exception $e) {
             throw new PluginInstallerException($e->getMessage());
         }

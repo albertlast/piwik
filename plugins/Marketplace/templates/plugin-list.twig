@@ -1,7 +1,7 @@
 <div class="row marketplace-max-width">
 
     {# Hide filters and search for themes because we don't have many of them #}
-    {% if not showThemes %}
+    {% if (plugins|length) > 20 or query %}
         <div class="col-sm-12 clearfix">
 
             <form action="{{ linkTo({'sort': ''}) }}" method="post" class="plugin-search">
@@ -27,6 +27,25 @@
                 </li>
             </ul>
 
+        </div>
+    {% endif %}
+
+    {% if showFree and whitelistedGithubOrgs and distributor and distributor.getName %}
+        <div class="col-sm-12 clearfix">
+            <div class="alert alert-info">
+                As a <a href="{{ distributor.getHomepage|e('html_attr') }}">{{ distributor.getName }}</a> client you can only install plugins developed by {{ whitelistedGithubOrgs|join(' and ') }} to ensure your
+                Piwik is stable and safe.
+            </div>
+        </div>
+    {% endif %}
+
+    {% if plugins|length == 0 %}
+        <div class="col-sm-12 clearfix">
+            {% if showThemes %}
+                {{ 'CorePluginsAdmin_NoThemesFound'|translate }}
+            {% else %}
+                {{ 'CorePluginsAdmin_NoPluginsFound'|translate }}
+            {% endif %}
         </div>
     {% endif %}
 
@@ -57,15 +76,21 @@
 
                     <ul class="metadata">
                         <li>
-                            {{ 'CorePluginsAdmin_Version'|translate }}: {{ plugin.latestVersion }}
+                            {% if plugin.latestVersion %}
+                                {{ 'CorePluginsAdmin_Version'|translate }}: {{ plugin.latestVersion }}
+                            {% endif %}
                             {% if plugin.canBeUpdated %}
                                 <a class="plugin-details update-available" href="#" data-pluginName="{{ plugin.name }}" data-activePluginTab="changelog"
                                    title="{{ 'CorePluginsAdmin_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}">
                                     {{ 'CorePluginsAdmin_NewVersion'|translate }}</a>
                             {% endif %}
                         </li>
-                        <li>{{ 'CorePluginsAdmin_Updated'|translate }}: {{ plugin.lastUpdated }}</li>
+                        {% if plugin.lastUpdated %}
+                            <li>{{ 'CorePluginsAdmin_Updated'|translate }}: {{ plugin.lastUpdated }}</li>
+                        {% endif %}
+                        {% if plugin.numDownloads %}
                         <li>{{ 'General_Downloads'|translate }}: {{ plugin.numDownloads }}</li>
+                        {% endif %}
                         <li>{{ 'CorePluginsAdmin_Developer'|translate }}: {{ pluginsMacro.pluginDeveloper(plugin.owner) }}</li>
                     </ul>
                 </div>
@@ -81,6 +106,10 @@
                             <button class="btn btn-noop btn-block">
                                 {{ 'General_Installed'|translate }}
                             </button>
+                        {% elseif plugin.isPaid and not plugin.isDownloadable %}
+                            <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">
+                                {{ 'General_MoreDetails'|translate }}
+                            </a>
                         {% elseif plugin.missingRequirements|length > 0 %}
                             <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">
                                 {{ 'CorePluginsAdmin_CannotInstall'|translate }}
@@ -96,15 +125,6 @@
 
             </div>
         </div>
-
     {% endfor %}
-
-    {% if plugins|length == 0 %}
-        {% if showThemes %}
-            {{ 'CorePluginsAdmin_NoThemesFound'|translate }}
-        {% else %}
-            {{ 'CorePluginsAdmin_NoPluginsFound'|translate }}
-        {% endif %}
-    {% endif %}
 
 </div>

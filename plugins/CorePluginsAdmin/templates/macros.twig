@@ -52,17 +52,6 @@
 
 {% endmacro %}
 
-{% macro pluginDeveloper(owner) %}
-    {% if 'piwik' == owner %}<img title="Piwik" alt="Piwik" style="padding-bottom:2px;height:11px;" src="plugins/Morpheus/images/logo-marketplace.png"/>{% else %}{{ owner }}{% endif %}
-{% endmacro %}
-
-{% macro featuredIcon(align='') %}
-    <img class="featuredIcon"
-         title="{{ 'CorePluginsAdmin_FeaturedPlugin'|translate }}"
-         src="plugins/CorePluginsAdmin/images/rating_important.png"
-         align="{{ align }}" />
-{% endmacro %}
-
 {% macro pluginsFilter(isTheme, isMarketplaceEnabled) %}
 
     <p class="pluginsFilter entityContainer">
@@ -91,20 +80,6 @@
         {% endif %}
     </p>
 
-{% endmacro %}
-
-{% macro missingRequirementsPleaseUpdateNotice(plugin) %}
-    {% if plugin.missingRequirements and 0 < plugin.missingRequirements|length %}
-        {% for req in plugin.missingRequirements -%}
-            <div class="alert alert-danger">
-                {% set requirement = req.requirement|capitalize %}
-                {% if 'Php' == requirement %}
-                    {% set requirement = 'PHP' %}
-                {% endif %}
-                {{ 'CorePluginsAdmin_MissingRequirementsNotice'|translate(requirement, req.actualVersion, req.requiredVersion) }}
-            </div>
-        {%- endfor %}
-    {% endif %}
 {% endmacro %}
 
 {% macro missingRequirementsInfo(pluginName, metadata, missingRequirements, marketplacePluginNames) %}

@@ -132,6 +132,17 @@ enabled = 0
 ; Note that for quick debugging, instead of using below setting, you can add `&disable_merged_assets=1` to the Piwik URL
 disable_merged_assets = 0
 
+[Marketplace]
+; By setting this option to 0, you can disable the Piwik marketplace. This is useful to prevent giving the Super user
+; the access to disk and install custom PHP code (Piwik plugins).
+enabled = 1
+
+; Can be used to restrict the list of shown plugins in the Marketplace to specific github organizations. By default it
+; will show all plugins ("0"). To whistlist only specific organizations list them comma separated, eg "piwik,piwikpro".
+; To force showing all plugins if a license key specified, set the value "all". The value "all" is especially interesting
+; for Piwik PRO clients as they see only plugins developed by Piwik and Piwik PRO by default.
+whitelisted_github_orgs = 0
+
 [General]
 
 ; the following settings control whether Unique Visitors `nb_uniq_visitors` and Unique users `nb_users` will be processed for different period types.
@@ -520,10 +531,6 @@ absolute_chroot_path =
 ; In some rare cases it may be useful to explicitely tell Piwik not to use LOAD DATA INFILE
 ; This may for example be useful when doing Mysql AWS replication
 enable_load_data_infile = 1
-
-; By setting this option to 0, you can disable the Piwik marketplace. This is useful to prevent giving the Super user
-; the access to disk and install custom PHP code (Piwik plugins).
-enable_marketplace = 1
 
 ; By setting this option to 0:
 ; - links to Enable/Disable/Uninstall plugins will be hidden and disabled

@@ -1,4 +1,4 @@
-{% import '@CorePluginsAdmin/macros.twig' as pluginsMacro %}
+{% import '@Marketplace/macros.twig' as pluginsMacro %}
 
 {% block content %}
 
@@ -7,7 +7,11 @@
             {{ errorMessage }}
         {% elseif plugin %}
 
-            {% set latestVersion = plugin.versions[plugin.versions|length - 1] %}
+            {% if plugin.versions is not empty and plugin.versions[plugin.versions|length - 1] %}
+                {% set latestVersion = plugin.versions[plugin.versions|length - 1] %}
+            {% else %}
+                {% set latestVersion = '' %}
+            {% endif %}
 
             <div class="header">
                 <div class="intro" style="width:75%;float:left;">
@@ -21,7 +25,12 @@
                 </div>
                 <div class="width:25%;float:left;">
 
-                    {% if isSuperUser %}
+                    {% if plugin.isPaid and (not plugin.isDownloadable or not isSuperUser) %}
+                        <a class="install update"
+                           target="_blank"
+                           href="{{ plugin.homepage|e('html_attr') }}"
+                        >{{ 'General_MoreDetails'|translate }}</a>
+                    {% elseif isSuperUser %}
                         {% if plugin.canBeUpdated and 0 == plugin.missingRequirements|length %}
                             <a class="install update"
                                href="{{ linkTo({'action':'updatePlugin', 'pluginName': plugin.name, 'nonce': updateNonce}) }}"
@@ -45,7 +54,9 @@
                             {% if latestVersion.readmeHtml.faq %}
                                 <li><a href="#tabs-faq">{{ 'General_Faq'|translate }}</a></li>
                             {% endif %}
-                            <li><a href="#tabs-changelog">{{ 'CorePluginsAdmin_Changelog'|translate }}</a></li>
+                            {% if plugin.isDownloadable %}
+                                <li><a href="#tabs-changelog">{{ 'CorePluginsAdmin_Changelog'|translate }}</a></li>
+                            {% endif %}
                             {% if plugin.screenshots|length %}
                                 <li><a href="#tabs-screenshots">{{ 'CorePluginsAdmin_Screenshots'|translate }}</a></li>
                             {% endif %}
@@ -65,38 +76,40 @@
                             </div>
                         {% endif %}
 
-                        <div id="tabs-changelog">
-                            {{ pluginsMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
-                            {% if plugin.canBeUpdated %}
-                                <div class="alert alert-warning">
-                                    {{ 'CorePluginsAdmin_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}
-                                    {% if plugin.repositoryChangelogUrl %}<a rel="noreferrer"  target="_blank" href="{{ plugin.repositoryChangelogUrl }}">{{ 'CorePluginsAdmin_ViewRepositoryChangelog'|translate }}</a>{% endif %}
-                                </div>
-                            {% endif %}
+                        {% if plugin.isDownloadable %}
+                            <div id="tabs-changelog">
+                                {{ pluginsMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
+                                {% if plugin.canBeUpdated %}
+                                    <div class="alert alert-warning">
+                                        {{ 'CorePluginsAdmin_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}
+                                        {% if plugin.repositoryChangelogUrl %}<a rel="noreferrer"  target="_blank" href="{{ plugin.repositoryChangelogUrl }}">{{ 'CorePluginsAdmin_ViewRepositoryChangelog'|translate }}</a>{% endif %}
+                                    </div>
+                                {% endif %}
 
-                            {% if latestVersion.readmeHtml.changelog %}
-                                {{ latestVersion.readmeHtml.changelog|raw }}
-                            {% endif %}
+                                {% if latestVersion.readmeHtml.changelog %}
+                                    {{ latestVersion.readmeHtml.changelog|raw }}
+                                {% endif %}
 
-                            <h3>{{ 'CorePluginsAdmin_History'|translate }}</h3>
+                                <h3>{{ 'CorePluginsAdmin_History'|translate }}</h3>
 
-                            <ul>
-                                {% for version in plugin.versions|reverse %}
-                                    <li>
-                                        {% set versionName %}
-                                            <strong>
-                                                {% if version.repositoryChangelogUrl %}
-                                                    <a target="_blank" title="{{ 'CorePluginsAdmin_Changelog'|translate }}" href="{{ version.repositoryChangelogUrl }}">{{ version.name }}</a>
-                                                {% else %}
-                                                    {{ version.name }}
-                                                {% endif %}
-                                            </strong>
-                                        {% endset %}
-                                        {{ 'CorePluginsAdmin_PluginVersionInfo'|translate(versionName, version.release)|raw }}
-                                        </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                                <ul>
+                                    {% for version in plugin.versions|reverse %}
+                                        <li>
+                                            {% set versionName %}
+                                                <strong>
+                                                    {% if version.repositoryChangelogUrl %}
+                                                        <a target="_blank" title="{{ 'CorePluginsAdmin_Changelog'|translate }}" href="{{ version.repositoryChangelogUrl }}">{{ version.name }}</a>
+                                                    {% else %}
+                                                        {{ version.name }}
+                                                    {% endif %}
+                                                </strong>
+                                            {% endset %}
+                                            {{ 'CorePluginsAdmin_PluginVersionInfo'|translate(versionName, version.release)|raw }}
+                                            </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
 
                         {% if plugin.screenshots|length %}
                             <div id="tabs-screenshots">
@@ -130,10 +143,14 @@
                         <dd>{{ plugin.latestVersion }}</dd>
                         <dt>{{ 'CorePluginsAdmin_PluginKeywords'|translate }}</dt>
                         <dd>{{ plugin.keywords|join(', ') }}</dd>
-                        <dt>{{ 'CorePluginsAdmin_LastUpdated'|translate }}</dt>
-                        <dd>{{ plugin.lastUpdated }}</dd>
-                        <dt>{{ 'General_Downloads'|translate }}</dt>
-                        <dd title="{{ 'CorePluginsAdmin_NumDownloadsLatestVersion'|translate(latestVersion.numDownloads|number_format) }}">{{ plugin.numDownloads }}</dd>
+                        {% if plugin.lastUpdated %}
+                            <dt>{{ 'CorePluginsAdmin_LastUpdated'|translate }}</dt>
+                            <dd>{{ plugin.lastUpdated }}</dd>
+                        {% endif %}
+                        {% if plugin.numDownloads %}
+                            <dt>{{ 'General_Downloads'|translate }}</dt>
+                            <dd title="{{ 'CorePluginsAdmin_NumDownloadsLatestVersion'|translate(latestVersion.numDownloads|number_format) }}">{{ plugin.numDownloads }}</dd>
+                        {% endif %}
                         <dt>{{ 'CorePluginsAdmin_Developer'|translate }}</dt>
                         <dd>{{ pluginsMacro.pluginDeveloper(plugin.owner) }}</dd>
                         <dt>{{ 'CorePluginsAdmin_Authors'|translate }}</dt>
@@ -161,7 +178,7 @@
                                 <a target="_blank" href="{{ plugin.homepage }}">{{ 'CorePluginsAdmin_PluginWebsite'|translate }}</a>,
                             {% endif %}
                             <a target="_blank" href="{{ plugin.repositoryUrl }}">GitHub</a></dd>
-                        {% if plugin.activity %}
+                        {% if plugin.activity and plugin.activity.numCommits %}
                             <dt>{{ 'CorePluginsAdmin_Activity'|translate }}</dt>
                             <dd>
                                 {{ plugin.activity.numCommits }} commits
