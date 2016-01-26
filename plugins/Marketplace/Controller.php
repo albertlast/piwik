@@ -16,6 +16,7 @@ use Piwik\Nonce;
 use Piwik\Piwik;
 use Piwik\Plugins\CorePluginsAdmin\Controller as PluginsController;
 use Piwik\Plugins\CorePluginsAdmin\CorePluginsAdmin;
+use Piwik\SettingsPiwik;
 use Piwik\View;
 
 /**
@@ -140,6 +141,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $consumer['expireDateDiff'] = $formatter->getPrettyTimeFromSeconds($seconds, $displayTimeAsSentence = true, $round = true);
         }
 
+        $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
         $view->distributor = $this->consumer->getDistributor();
         $view->whitelistedGithubOrgs = $this->consumer->getWhitelistedGithubOrgs();
         $view->hasAccessToPaidPlugins = $this->consumer->hasAccessToPaidPlugins();
