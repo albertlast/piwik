@@ -37,6 +37,9 @@
                                     >{{ 'CoreUpdater_UpdateTitle'|translate }}</a>
                         {% elseif plugin.isInstalled %}
                         {% elseif 0 < plugin.missingRequirements|length %}
+                        {% elseif isMultiServerEnvironment %}
+                            <a onclick="$(this).css('display', 'none')" href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
+                               class="download">{{ 'General_Download'|translate }}</a>
                         {% else %}
                             <a href="{{ linkTo({'action': 'installPlugin', 'module': 'CorePluginsAdmin', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
                                class="install">{{ 'CorePluginsAdmin_ActionInstall'|translate }}</a>
@@ -67,6 +70,12 @@
 
                         <div id="tabs-description">
                             {{ pluginsMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
+
+                            {% if not plugin.isInstalled and isMultiServerEnvironment %}
+                                <div class="alert alert-warning">You cannot install the plugin directly as you are using
+                                 Piwik on multiple servers. The plugin would be only installed on one server. Instead download
+                                 the plugin and deploy it manually to all your servers.</div>
+                            {% endif %}
                             {{ latestVersion.readmeHtml.description|raw }}
                         </div>
 

@@ -5,16 +5,20 @@ use Piwik\Plugins\Marketplace\Api\Service;
 use Piwik\Plugins\Marketplace\LicenseKey;
 
 return array(
-    'MarketplaceEndpoint' => 'http://plugins.piwik.org',
-    'Piwik\Plugins\Marketplace\Api\Service' => function (ContainerInterface $c) {
-        /** @var \Piwik\Plugins\Marketplace\Api\Service $previous */
-
-        $domain = $c->get('MarketplaceEndpoint');
+    'MarketplaceEndpoint' => function (ContainerInterface $c) {
+        $domain = 'http://plugins.piwik.org';
         $updater = $c->get('Piwik\Plugins\CoreUpdater\Updater');
 
         if (0 && $updater->isUpdatingOverHttps()) {
             $domain = str_replace('http://', 'https://', $this->domain);
         }
+
+        return $domain;
+    },
+    'Piwik\Plugins\Marketplace\Api\Service' => function (ContainerInterface $c) {
+        /** @var \Piwik\Plugins\Marketplace\Api\Service $previous */
+
+        $domain = $c->get('MarketplaceEndpoint');
 
         $service = new Service($domain);
 

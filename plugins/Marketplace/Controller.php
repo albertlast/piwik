@@ -9,15 +9,21 @@
 namespace Piwik\Plugins\Marketplace;
 
 use Piwik\Common;
+use Piwik\Container\StaticContainer;
 use Piwik\Date;
+use Piwik\Filesystem;
 use Piwik\Http;
+use Piwik\Log;
 use Piwik\Metrics\Formatter;
 use Piwik\Nonce;
 use Piwik\Piwik;
+use Piwik\Plugin;
 use Piwik\Plugins\CorePluginsAdmin\Controller as PluginsController;
 use Piwik\Plugins\CorePluginsAdmin\CorePluginsAdmin;
+use Piwik\ProxyHttp;
 use Piwik\SettingsPiwik;
 use Piwik\View;
+use Exception;
 
 /**
  * A controller let's you for example create a page that can be added to a menu. For more information read our guide
@@ -76,11 +82,41 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $view->installNonce = Nonce::getNonce(PluginsController::INSTALL_NONCE);
             $view->updateNonce  = Nonce::getNonce(PluginsController::UPDATE_NONCE);
             $view->activeTab    = $activeTab;
+            $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
         } catch (\Exception $e) {
             $view->errorMessage = $e->getMessage();
         }
 
         return $view->render();
+    }
+
+    public function download()
+    {
+        static::dieIfMarketplaceIsDisabled();
+        Piwik::checkUserHasSuperUserAccess();
+        Nonce::checkNonce(PluginsController::INSTALL_NONCE);
+
+        $pluginName = Common::getRequestVar('pluginName');
+
+        if (!Plugin\Manager::getInstance()->isValidPluginName($pluginName)){
+            throw new Exception('Invalid plugin name given');
+        }
+
+        // we generate a random unique id as filename to prevent any user could possibly download zip directly by
+        // opening $piwikDomain/tmp/latest/plugins/$pluginName.zip in the browser. Instead we make it harder here
+        // and try to make sure to delete file in case of any error.
+        $target = StaticContainer::get('path.tmp') . '/latest/plugins/' . Common::generateUniqId() . '.zip';
+        $filename = $pluginName . '.zip';
+
+        try {
+            $this->marketplaceApi->download($pluginName, $target);
+            ProxyHttp::serverStaticFile($target, 'application/zip', $expire = 0, $start = false, $end = false, $filename);
+        } catch (Exception $e) {
+            Common::sendResponseCode(500);
+            Log::warning('Could not download file . ' . $e->getMessage());
+        }
+
+        Filesystem::deleteFileIfExists($target);
     }
 
     public function overview()

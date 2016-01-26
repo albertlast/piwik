@@ -101,7 +101,7 @@
                             <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">
                                 {{ 'General_MoreDetails'|translate }}
                             </a>
-                        {% elseif plugin.missingRequirements|length > 0 %}
+                        {% elseif plugin.missingRequirements|length > 0 or isMultiServerEnvironment %}
                             <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">
                                 {{ 'CorePluginsAdmin_CannotInstall'|translate }}
                             </a>

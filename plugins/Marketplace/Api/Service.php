@@ -50,6 +50,36 @@ class Service
         return $this->version;
     }
 
+    public function download($url, $destinationPath = null, $timeout = null)
+    {
+        $method = Http::getTransportMethod();
+
+        if (!isset($timeout)) {
+            $timeout = static::HTTP_REQUEST_TIMEOUT;
+        }
+
+        $post = null;
+        if ($this->accessToken) {
+            $post = array('access_token' => $this->accessToken);
+        }
+
+        $file = Http::ensureDestinationDirectoryExists($destinationPath);
+
+        $response = Http::sendHttpRequestBy($method,
+                                            $url,
+                                            $timeout,
+                                            $userAgent = null,
+                                            $destinationPath,
+                                            $file,
+                                            $followDepth = 0,
+                                            $acceptLanguage = false,
+                                            $acceptInvalidSslCertificate = false,
+                                            $byteRange = false, $getExtendedInfo = false, $httpMethod = 'POST',
+                                            $httpUsername = null, $httpPassword = null, $post);
+
+        return $response;
+    }
+
     public function fetch($action, $params)
     {
         $query = http_build_query($params);
@@ -58,25 +88,7 @@ class Service
 
         $url = sprintf('%s%s?%s', $endpoint, $action, $query);
 
-        $post = null;
-        if ($this->accessToken) {
-            $post = array('access_token' => $this->accessToken);
-        }
-
-        $method = Http::getTransportMethod();
-        $timeout = static::HTTP_REQUEST_TIMEOUT;
-
-        $response = Http::sendHttpRequestBy($method,
-                                            $url,
-                                            $timeout,
-                                            $userAgent = null,
-                                            $destinationPath = null,
-                                            $file = null,
-                                            $followDepth = 0,
-                                            $acceptLanguage = false,
-                                            $acceptInvalidSslCertificate = false,
-                                            $byteRange = false, $getExtendedInfo = false, $httpMethod = 'POST',
-                                            $httpUsername = null, $httpPassword = null, $post);
+        $response = $this->download($url);
 
         $result = json_decode($response, true);
 

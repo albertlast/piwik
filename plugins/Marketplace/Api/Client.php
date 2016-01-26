@@ -11,6 +11,7 @@ namespace Piwik\Plugins\Marketplace\Api;
 use Piwik\Cache;
 use Piwik\Http;
 use Piwik\Plugins\Marketplace\Api\Service;
+use Piwik\SettingsServer;
 use Piwik\Version;
 
 /**
@@ -51,13 +52,16 @@ class Client
 
     public function download($pluginOrThemeName, $target)
     {
+        @ignore_user_abort(true);
+        SettingsServer::setMaxExecutionTime(0);
+
         $downloadUrl = $this->getDownloadUrl($pluginOrThemeName);
 
         if (empty($downloadUrl)) {
             return false;
         }
 
-        $success = Http::fetchRemoteFile($downloadUrl, $target, 0, static::HTTP_REQUEST_TIMEOUT);
+        $success = $this->service->download($downloadUrl, $target, static::HTTP_REQUEST_TIMEOUT);
 
         return $success;
     }
