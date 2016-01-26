@@ -78,6 +78,8 @@ class Consumer
             }
 
             return $githubOrgs;
+        } elseif (empty($whitelist)) {
+            return false;
         }
 
         $githubOrgs = explode(',', $whitelist);

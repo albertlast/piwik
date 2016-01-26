@@ -41,6 +41,11 @@ class API extends \Piwik\Plugin\API
     {
         Piwik::checkUserHasSuperUserAccess();
 
+        if (empty($licenseKey)) {
+            $this->setLicenseKey(null); // we delete the key
+            return true;
+        }
+
         $this->marketplaceService->authenticate($licenseKey);
 
         try {
@@ -57,12 +62,17 @@ class API extends \Piwik\Plugin\API
             throw new Exception('Entered license key is not valid');
         }
 
-        $key = new LicenseKey();
-        $key->set($licenseKey);
-
-        $this->marketplaceClient->clearAllCacheEntries();
+        $this->setLicenseKey($licenseKey);
 
         return true;
+    }
+
+    private function setLicenseKey($licenseKey)
+    {
+        $this->marketplaceClient->clearAllCacheEntries();
+
+        $key = new LicenseKey();
+        $key->set($licenseKey);
     }
 
 }

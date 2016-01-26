@@ -63,7 +63,8 @@
 
                         <br />
                         <input type="password" id="piwikpro_license_key">
-                        <input disabled="disabled" id="piwikpro_license_key_submit" class="btn" type="button" value="Update license key">
+                        <input disabled="disabled" id="submit_license_key" class="btn" type="button" value="Update license key">
+                        <input disabled="disabled" id="remove_license_key" class="btn" type="button" value="Remove license key">
 
                     {% else %}
 
@@ -71,7 +72,7 @@
                         <a href="https://piwik.pro/enterprise/">Piwik Pro On-Premises</a> clients.
                         To be able to download paid plugins enter your license key that you have received here. If you do not have a license key
                         yet contact <a target="_blank" href="https://piwik.pro/">Piwik PRO</a>.<br />
-                        <input type="password" id="piwikpro_license_key"> <input disabled="disabled" id="piwikpro_license_key_submit" class="btn" type="button" value="Activate">
+                        <input type="password" id="license_key"> <input disabled="disabled" id="submit_license_key" class="btn" type="button" value="Activate">
 
                     {% endif %}
                 </p>

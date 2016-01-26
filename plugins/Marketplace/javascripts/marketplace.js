@@ -7,34 +7,13 @@
 
 $(document).ready(function () {
 
-    function setLicenseKeyEnabled(enabled)
+    function updateLicenseKey(key)
     {
-        $('#piwikpro_license_key_submit').prop('disabled', !enabled);
-    }
-
-    $('#piwikpro_license_key').on('keyup', function () {
-        var value = $(this).val();
-        setLicenseKeyEnabled(!!value);
-    });
-
-    function checkLicenseKey() {
-    }
-
-    $('#piwikpro_license_key_submit').on('click', function () {
-
-        var value = $('#piwikpro_license_key').val();
-
-        if (!value) {
-            return;
-        }
-
-        setLicenseKeyEnabled(false);
-
         var ajaxRequest = new ajaxHelper();
         ajaxRequest.addParams({
             module: 'API',
             method: 'Marketplace.saveLicenseKey',
-            licenseKey: value,
+            licenseKey: key,
             format: 'JSON'
         }, 'get');
         ajaxRequest.setCallback(function (response) {
@@ -47,7 +26,33 @@ $(document).ready(function () {
             }
         });
         ajaxRequest.send(false);
+    }
 
+    function setLicenseKeyEnabled(enabled)
+    {
+        $('.marketplace #submit_license_key').prop('disabled', !enabled);
+    }
+
+    $('.marketplace #license_key').on('keyup', function () {
+        var value = $(this).val();
+        setLicenseKeyEnabled(!!value);
+    });
+
+
+    $('.marketplace #remove_license_key').on('click', function () {
+        updateLicenseKey('');
+    });
+
+    $('.marketplace #submit_license_key').on('click', function () {
+
+        var value = $('.marketplace #license_key').val();
+
+        if (!value) {
+            return;
+        }
+
+        setLicenseKeyEnabled(false);
+        updateLicenseKey(value);
     });
 
     // Keeps the plugin descriptions the same height
