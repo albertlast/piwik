@@ -21,6 +21,8 @@ class Consumer
      * @var Api\Client
      */
     private $marketplaceClient;
+
+    private $consumer = false;
     
     public function __construct(Api\Client $marketplaceClient)
     {
@@ -45,7 +47,11 @@ class Consumer
 
     public function getConsumer()
     {
-        return $this->marketplaceClient->getConsumer();
+        if ($this->consumer === false) {
+            $this->consumer = $this->marketplaceClient->getConsumer();
+        }
+
+        return $this->consumer;
     }
 
     /**
@@ -59,11 +65,11 @@ class Consumer
     {
         $whitelist = Config::getInstance()->Marketplace['whitelisted_github_orgs'];
 
-        if ($whitelist == 'all') {
+        if ($whitelist === 'all') {
             return false;
         }
 
-        if ((empty($whitelist) || $whitelist == '0') && $this->hasAccessToPaidPlugins()) {
+        if (empty($whitelist) && $this->hasAccessToPaidPlugins()) {
             $githubOrgs = array('piwik');
             $distributor = $this->getDistributor();
 

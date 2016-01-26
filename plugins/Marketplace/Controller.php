@@ -130,11 +130,21 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $view->whitelistedGithubOrgs = $this->consumer->getWhitelistedGithubOrgs();
         $view->hasAccessToPaidPlugins = $this->consumer->hasAccessToPaidPlugins();
 
+        if (!$showThemes && $showPaid) {
+            $view->plugins = $paidPlugins;
+        } elseif (!$showThemes) {
+            $view->plugins = $freePlugins;
+        } else {
+            $view->plugins = $themes;
+        }
+
         $view->consumer = $consumer;
         $view->paidPlugins = $paidPlugins;
         $view->freePlugins = $freePlugins;
         $view->themes = $themes;
         $view->showThemes = $showThemes;
+        $view->showPlugins = !$showThemes;
+        $view->showFree = !$showPaid;
         $view->showPaid = $showPaid;
         $view->mode = $mode;
         $view->query = $query;

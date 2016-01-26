@@ -30,7 +30,7 @@
         </div>
     {% endif %}
 
-    {% if not showPaid and areGithubOrgsWhitelisted and distributor.getName %}
+    {% if showFree and whitelistedGithubOrgs and distributor.getName %}
         <div class="col-sm-12 clearfix">
             <div class="alert alert-info">
                 As a <a href="{{ distributor.getHomepage|e('html_attr') }}">{{ distributor.getName }}</a> client you can only install plugins developed by {{ whitelistedGithubOrgs|join(' and ') }} to ensure your

@@ -14,31 +14,31 @@
         <ul class="nav nav-pills">
             {% if hasAccessToPaidPlugins %}
                 {% if paidPlugins|length %}
-                    <li {% if not showThemes and showPaid %}class="active"{% endif %}>
+                    <li {% if showPlugins and showPaid %}class="active"{% endif %}>
                         <a href="{{ linkTo({'show': 'plugins', 'type': 'paid'}) }}">{{ 'Marketplace_PaidPlugins'|translate }}</a>
                     </li>
                 {% endif %}
                 {% if freePlugins|length %}
-                    <li {% if not showThemes and not showPaid %}class="active"{% endif %}>
+                    <li {% if showPlugins and showFree %}class="active"{% endif %}>
                     <a href="{{ linkTo({'show': 'plugins', 'type': 'free'}) }}">{{ 'Marketplace_FreePlugins'|translate }}</a>
                 </li>
                 {% endif %}
             {% else %}
                 {% if freePlugins|length %}
-                    <li {% if not showThemes and not showPaid %}class="active"{% endif %}>
-                        <a href="{{ linkTo({'show': 'plugins', 'type': 'free'}) }}">{{ 'General_Plugins'|translate }}</a>
+                    <li {% if showPlugins and showFree %}class="active"{% endif %}>
+                        <a href="{{ linkTo({'show': 'plugins', 'type': 'free'}) }}">{{ 'Marketplace_FreePlugins'|translate }}</a>
                     </li>
                 {% endif %}
                 {% if paidPlugins|length %}
-                    <li {% if not showThemes and showPaid %}class="active"{% endif %}>
-                        <a href="{{ linkTo({'show': 'plugins', 'type': 'paid'}) }}">{{ 'CorePluginsAdmin_PaidPlugins'|translate }}</a>
+                    <li {% if showPlugins and showPaid %}class="active"{% endif %}>
+                        <a href="{{ linkTo({'show': 'plugins', 'type': 'paid'}) }}">{{ 'Marketplace_PaidPlugins'|translate }}</a>
                     </li>
                 {% endif %}
             {% endif %}
 
             {% if themes|length %}
                 <li {% if showThemes %}class="active"{% endif %}>
-                    <a href="{{ linkTo({'show': 'themes', 'type': 'free'}) }}">{{ 'CorePluginsAdmin_Themes'|translate }}</a>
+                    <a href="{{ linkTo({'show': 'themes', 'type': 'free'}) }}">{{ 'Marketplace_FreeThemes'|translate }}</a>
                 </li>
             {% endif %}
         </ul>
