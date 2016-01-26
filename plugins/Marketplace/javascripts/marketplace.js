@@ -7,12 +7,12 @@
 
 $(document).ready(function () {
 
-    function updateLicenseKey(key)
+    function updateLicenseKey(action, key)
     {
         var ajaxRequest = new ajaxHelper();
         ajaxRequest.addParams({
             module: 'API',
-            method: 'Marketplace.saveLicenseKey',
+            method: 'Marketplace.' + action,
             licenseKey: key,
             format: 'JSON'
         }, 'get');
@@ -38,9 +38,8 @@ $(document).ready(function () {
         setLicenseKeyEnabled(!!value);
     });
 
-
     $('.marketplace #remove_license_key').on('click', function () {
-        updateLicenseKey('');
+        updateLicenseKey('deleteLicenseKey', '');
     });
 
     $('.marketplace #submit_license_key').on('click', function () {
@@ -52,7 +51,7 @@ $(document).ready(function () {
         }
 
         setLicenseKeyEnabled(false);
-        updateLicenseKey(value);
+        updateLicenseKey('saveLicenseKey', value);
     });
 
     // Keeps the plugin descriptions the same height

@@ -37,14 +37,17 @@ class API extends \Piwik\Plugin\API
         $this->marketplaceService = $service;
     }
 
-    public function saveLicenseKey($licenseKey)
+    public function deleteLicenseKey()
     {
         Piwik::checkUserHasSuperUserAccess();
 
-        if (empty($licenseKey)) {
-            $this->setLicenseKey(null); // we delete the key
-            return true;
-        }
+        $this->setLicenseKey(null);
+        return true;
+    }
+
+    public function saveLicenseKey($licenseKey)
+    {
+        Piwik::checkUserHasSuperUserAccess();
 
         $this->marketplaceService->authenticate($licenseKey);
 
