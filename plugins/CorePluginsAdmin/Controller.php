@@ -22,6 +22,7 @@ use Piwik\Plugin;
 use Piwik\Plugins\Marketplace\Marketplace;
 use Piwik\Plugins\Marketplace\Plugins;
 use Piwik\Settings\Manager as SettingsManager;
+use Piwik\SettingsPiwik;
 use Piwik\Translation\Translator;
 use Piwik\Url;
 use Piwik\Version;
@@ -174,6 +175,7 @@ class Controller extends Plugin\ControllerAdmin
         $view->activateNonce = Nonce::getNonce(static::ACTIVATE_NONCE);
         $view->uninstallNonce = Nonce::getNonce(static::UNINSTALL_NONCE);
         $view->deactivateNonce = Nonce::getNonce(static::DEACTIVATE_NONCE);
+        $view->installNonce = Nonce::getNonce(static::INSTALL_NONCE);
         $view->pluginsInfo = $this->getPluginsInfo($themesOnly);
 
         $users = Request::processRequest('UsersManager.getUsers');
@@ -183,6 +185,7 @@ class Controller extends Plugin\ControllerAdmin
         $view->pluginNamesHavingSettings = $this->getPluginNamesHavingSettingsForCurrentUser();
         $view->isMarketplaceEnabled = Marketplace::isMarketplaceEnabled();
         $view->isPluginsAdminEnabled = CorePluginsAdmin::isPluginsAdminEnabled();
+        $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
 
         $view->pluginsHavingUpdate    = array();
         $view->marketplacePluginNames = array();
