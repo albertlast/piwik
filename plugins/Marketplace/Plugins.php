@@ -168,6 +168,19 @@ class Plugins
         $plugin['canBeUpdated'] = $plugin['isInstalled'] && $this->hasPluginUpdate($plugin);
         $plugin['lastUpdated'] = $this->toShortDate($plugin['lastUpdated']);
 
+        if (!empty($plugin['owner'])
+            && strtolower($plugin['owner']) === 'piwikpro'
+            && !empty($plugin['homepage'])
+            && strpos($plugin['homepage'], 'pk_campaign') === false) {
+
+            if (strpos($plugin['homepage'], '?') === false) {
+                $plugin['homepage'] .= '?';
+            } else {
+                $plugin['homepage'] .= '&';
+            }
+            $plugin['homepage'] .= 'pk_campaign=Upgrade_to_Pro&pk_medium=Marketplace&pk_source=Piwik_App&pk_content=' . $plugin['name'];
+        }
+
         if ($plugin['canBeUpdated']) {
             $pluginUpdate = $this->getPluginUpdateInformation($plugin);
             $plugin['repositoryChangelogUrl'] = $pluginUpdate['repositoryChangelogUrl'];
