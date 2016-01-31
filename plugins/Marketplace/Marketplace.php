@@ -20,7 +20,8 @@ class Marketplace extends \Piwik\Plugin
     {
         return array(
             'AssetManager.getJavaScriptFiles' => 'getJsFiles',
-            'AssetManager.getStylesheetFiles' => 'getStylesheetFiles'
+            'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
+            'Translate.getClientSideTranslationKeys' => 'getClientSideTranslationKeys',
         );
     }
 
@@ -32,7 +33,14 @@ class Marketplace extends \Piwik\Plugin
 
     public function getJsFiles(&$jsFiles)
     {
+        $jsFiles[] = "plugins/Marketplace/javascripts/licensekey.js";
         $jsFiles[] = "plugins/Marketplace/javascripts/marketplace.js";
+    }
+
+    public function getClientSideTranslationKeys(&$translationKeys)
+    {
+        $translationKeys[] = 'Marketplace_LicenseKeyUpdatedSuccess';
+        $translationKeys[] = 'Marketplace_LicenseKeyDeletedSuccess';
     }
 
     public static function isMarketplaceEnabled()

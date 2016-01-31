@@ -7,53 +7,6 @@
 
 $(document).ready(function () {
 
-    function updateLicenseKey(action, key)
-    {
-        var ajaxRequest = new ajaxHelper();
-        ajaxRequest.addParams({
-            module: 'API',
-            method: 'Marketplace.' + action,
-            licenseKey: key,
-            format: 'JSON'
-        }, 'get');
-        ajaxRequest.setCallback(function (response) {
-            if (response && response.value) {
-                var UI = require('piwik/UI');
-                var notification = new UI.Notification();
-                notification.show('License key updated', {context: 'success'});
-
-                piwikHelper.redirect();
-            }
-        });
-        ajaxRequest.send(false);
-    }
-
-    function setLicenseKeyEnabled(enabled)
-    {
-        $('.marketplace #submit_license_key').prop('disabled', !enabled);
-    }
-
-    $('.marketplace #license_key').on('keyup', function () {
-        var value = $(this).val();
-        setLicenseKeyEnabled(!!value);
-    });
-
-    $('.marketplace #remove_license_key').on('click', function () {
-        updateLicenseKey('deleteLicenseKey', '');
-    });
-
-    $('.marketplace #submit_license_key').on('click', function () {
-
-        var value = $('.marketplace #license_key').val();
-
-        if (!value) {
-            return;
-        }
-
-        setLicenseKeyEnabled(false);
-        updateLicenseKey('saveLicenseKey', value);
-    });
-
     // Keeps the plugin descriptions the same height
     $('.marketplace .plugin .description').dotdotdot({
         after: 'a.more',

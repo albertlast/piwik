@@ -29,7 +29,11 @@ class Service
      */
     private $accessToken;
 
-    private $version = 2;
+    /**
+     * API version to use on the Marketplace
+     * @var string
+     */
+    private $version = '2.0';
 
     public function __construct($domain)
     {
@@ -45,11 +49,27 @@ class Service
         }
     }
 
+    /**
+     * The API version that will be used on the Marketplace.
+     * @return string eg 2.0
+     */
     public function getVersion()
     {
         return $this->version;
     }
 
+    /**
+     * Downloads data from the given URL via a POST request. If a destination path is given, the downloaded data
+     * will be stored in the given path and returned otherwise.
+     *
+     * Make sure to call {@link authenticate()} to download paid plugins.
+     *
+     * @param string $url An absolute URL to the marketplace including domain.
+     * @param null|string $destinationPath
+     * @param null|int $timeout  Defaults to 60 seconds see {@link self::HTTP_REQUEST_METHOD}
+     * @return bool|string  Returns the downloaded data or true if a destination path was given.
+     * @throws \Exception
+     */
     public function download($url, $destinationPath = null, $timeout = null)
     {
         $method = Http::getTransportMethod();
@@ -80,11 +100,21 @@ class Service
         return $response;
     }
 
+    /**
+     * Executes the given API action on the Marketplace using the given params and returns the result.
+     *
+     * Make sure to call {@link authenticate()} to download paid plugins.
+     *
+     * @param string $action  eg 'plugins', 'plugins/$pluginName/info', ...
+     * @param array $params   eg array('sort' => 'alpha')
+     * @return mixed
+     * @throws Service\Exception
+     */
     public function fetch($action, $params)
     {
         $query = http_build_query($params);
 
-        $endpoint = sprintf('%s/api/%d.0/', $this->domain, $this->version);
+        $endpoint = sprintf('%s/api/%s/', $this->domain, $this->version);
 
         $url = sprintf('%s%s?%s', $endpoint, $action, $query);
 
@@ -105,6 +135,10 @@ class Service
         return $result;
     }
 
+    /**
+     * Get the domain that is used in order to access the Marketplace. Eg http://plugins.piwik.org
+     * @return string
+     */
     public function getDomain()
     {
         return $this->domain;

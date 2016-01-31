@@ -20,7 +20,6 @@ use Piwik\Notification;
 use Piwik\Piwik;
 use Piwik\Plugin;
 use Piwik\Plugins\Marketplace\Marketplace;
-use Piwik\Plugins\Marketplace\Plugins;
 use Piwik\Settings\Manager as SettingsManager;
 use Piwik\SettingsPiwik;
 use Piwik\Translation\Translator;

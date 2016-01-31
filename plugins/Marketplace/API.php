@@ -37,6 +37,11 @@ class API extends \Piwik\Plugin\API
         $this->marketplaceService = $service;
     }
 
+    /**
+     * Deletes an existing license key if one is set.
+     *
+     * @return bool
+     */
     public function deleteLicenseKey()
     {
         Piwik::checkUserHasSuperUserAccess();
@@ -45,6 +50,16 @@ class API extends \Piwik\Plugin\API
         return true;
     }
 
+    /**
+     * Saves the given license key in case the key is actually valid (exists on the Piwik Marketplace and is not
+     * yet expired).
+     *
+     * @param string $licenseKey
+     * @return bool
+     *
+     * @throws Exception In case of an invalid license key
+     * @throws Service\Exception In case of any network problems
+     */
     public function saveLicenseKey($licenseKey)
     {
         Piwik::checkUserHasSuperUserAccess();
@@ -72,10 +87,10 @@ class API extends \Piwik\Plugin\API
 
     private function setLicenseKey($licenseKey)
     {
-        $this->marketplaceClient->clearAllCacheEntries();
-
         $key = new LicenseKey();
         $key->set($licenseKey);
+
+        $this->marketplaceClient->clearAllCacheEntries();
     }
 
 }

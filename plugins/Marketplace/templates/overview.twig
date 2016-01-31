@@ -68,6 +68,11 @@
 
                     {% else %}
 
+                        {% set linkOnPremises = 'Installation_End'|piwikProOnPremisesPromoLink %}
+                        {% set linkMoreDetails = 'https://piwik.pro/c/upgrade/?pk_campaign=Upgrade_to_Pro&pk_medium=Marketplace&pk_source=Piwik_App' %}
+
+
+                        {{ 'Marketplace_PaidPluginsNoLicenseKeyIntro'|translate()|raw }}
                         Paid plugins are available to <a href="https://piwik.pro/cloud">Piwik Pro Cloud</a> and
                         <a href="https://piwik.pro/enterprise/">Piwik Pro On-Premises</a> clients.
                         To be able to download paid plugins enter your license key that you have received here. If you do not have a license key
