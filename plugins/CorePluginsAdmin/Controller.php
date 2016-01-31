@@ -41,9 +41,15 @@ class Controller extends Plugin\ControllerAdmin
      */
     private $translator;
 
-    public function __construct(Translator $translator)
+    /**
+     * @var PluginInstaller
+     */
+    private $pluginInstaller;
+
+    public function __construct(Translator $translator, PluginInstaller $pluginInstaller)
     {
         $this->translator = $translator;
+        $this->pluginInstaller = $pluginInstaller;
 
         parent::__construct();
     }
@@ -58,8 +64,7 @@ class Controller extends Plugin\ControllerAdmin
         $view->plugin = array('name' => $pluginName);
 
         try {
-            $pluginInstaller = new PluginInstaller($pluginName);
-            $pluginInstaller->installOrUpdatePluginFromMarketplace();
+            $this->pluginInstaller->installOrUpdatePluginFromMarketplace($pluginName);
 
         } catch (\Exception $e) {
 
@@ -119,8 +124,7 @@ class Controller extends Plugin\ControllerAdmin
 
         $view = $this->configureView('@CorePluginsAdmin/uploadPlugin');
 
-        $pluginInstaller = new PluginInstaller('uploaded');
-        $pluginMetadata  = $pluginInstaller->installOrUpdatePluginFromFile($file);
+        $pluginMetadata  = $this->pluginInstaller->installOrUpdatePluginFromFile($file);
 
         $view->nonce = Nonce::getNonce(static::ACTIVATE_NONCE);
         $view->plugin = array(
