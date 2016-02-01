@@ -92,7 +92,6 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $view->installNonce = Nonce::getNonce(PluginsController::INSTALL_NONCE);
             $view->updateNonce  = Nonce::getNonce(PluginsController::UPDATE_NONCE);
             $view->activeTab    = $activeTab;
-            $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
         } catch (\Exception $e) {
             $view->errorMessage = $e->getMessage();
         }
@@ -194,7 +193,6 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         }
 
         $view->paidPluginsToInstallAtOnce = $paidPluginsToInstallAtOnce;
-        $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
         $view->distributor = $this->consumer->getDistributor();
         $view->whitelistedGithubOrgs = $this->consumer->getWhitelistedGithubOrgs();
         $view->hasAccessToPaidPlugins = $this->consumer->hasAccessToPaidPlugins();

@@ -198,7 +198,6 @@ class Controller extends Plugin\ControllerAdmin
         $view->pluginNamesHavingSettings = $this->getPluginNamesHavingSettingsForCurrentUser();
         $view->isMarketplaceEnabled = Marketplace::isMarketplaceEnabled();
         $view->isPluginsAdminEnabled = CorePluginsAdmin::isPluginsAdminEnabled();
-        $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
 
         $view->pluginsHavingUpdate    = array();
         $view->marketplacePluginNames = array();
