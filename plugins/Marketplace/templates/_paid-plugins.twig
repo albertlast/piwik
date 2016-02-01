@@ -56,11 +56,20 @@
 
 {% include '@Marketplace/plugin-list.twig' %}
 
-{% if isAuthenticatedCustomer and not isMultiServerEnvironment and isPluginsAdminEnabled and numPaidPluginsNotInstalled %}
-    <h3>{{ 'Marketplace_InstallAllPaidPlugins'|translate(numPaidPluginsNotInstalled) }}</h3>
-    <br />
-    <a href="{{ linkTo({'action': 'installAllPaidPlugins', 'nonce': installNonce}) }}" class="btn">
-        {{ 'Marketplace_InstallAllPaidPluginsAction'|translate }}
-    </a>
-    <br /><br />
+{% if isAuthenticatedCustomer and not isMultiServerEnvironment and isPluginsAdminEnabled and paidPluginsToInstallAtOnce|length %}
+    <h3>{{ 'Marketplace_InstallAllPaidPlugins'|translate }}</h3>
+    <p>
+    This will install and activate the following plugins:
+    </p>
+    <ul>
+        {% for pluginName in paidPluginsToInstallAtOnce %}
+            <li>{{ pluginName }}</li>
+        {% endfor %}
+    </ul>
+
+    <p>
+        <a href="{{ linkTo({'action': 'installAllPaidPlugins', 'nonce': installNonce}) }}" class="btn">
+            {{ 'Marketplace_InstallAllPaidPluginsAction'|translate(paidPluginsToInstallAtOnce|length) }}
+        </a>
+    </p>
 {% endif %}

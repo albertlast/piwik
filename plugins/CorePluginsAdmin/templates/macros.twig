@@ -56,6 +56,16 @@
 
 {% endmacro %}
 
+{% macro pluginActivateDeactivateAction(name, isActivated, missingRequirements, deactivateNonce, activateNonce) -%}
+    {%- if isActivated -%}
+        <a href='index.php?module=CorePluginsAdmin&action=deactivate&pluginName={{ name }}&nonce={{ deactivateNonce }}'>{{ 'CorePluginsAdmin_Deactivate'|translate }}</a>
+    {%- elseif missingRequirements %}
+        -
+    {% else -%}
+        <a href='index.php?module=CorePluginsAdmin&action=activate&pluginName={{ name }}&nonce={{  activateNonce }}'>{{ 'CorePluginsAdmin_Activate'|translate }}</a>
+    {%- endif -%}
+{%- endmacro %}
+
 {% macro pluginsFilter(isTheme, isMarketplaceEnabled) %}
 
     <p class="pluginsFilter entityContainer">
@@ -237,13 +247,7 @@
                         {% if plugin.invalid is defined or plugin.alwaysActivated %}
                             -
                         {% else %}
-                            {% if plugin.activated %}
-                                <a href='index.php?module=CorePluginsAdmin&action=deactivate&pluginName={{ name }}&nonce={{ deactivateNonce }}'>{{ 'CorePluginsAdmin_Deactivate'|translate }}</a>
-                            {% elseif plugin.missingRequirements %}
-                                -
-                            {% else %}
-                                <a href='index.php?module=CorePluginsAdmin&action=activate&pluginName={{ name }}&nonce={{  activateNonce }}'>{{ 'CorePluginsAdmin_Activate'|translate }}</a>
-                            {% endif %}
+                            {{ _self.pluginActivateDeactivateAction(name, plugin.activated, plugin.missingRequirements, deactivateNonce, activateNonce) }}
                         {% endif %}
 
                         {%- endif %}
@@ -254,6 +258,19 @@
         {% endfor %}
         </tbody>
     </table>
+
+    <div class="footer-message">
+        {% set pluginsAlwaysActivated %}
+            {% for name,plugin in pluginsInfo %}
+                {% if plugin.alwaysActivated is defined and plugin.alwaysActivated %}
+                    {{ name }}{% if not loop.last %}, {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endset %}
+        {{ 'CorePluginsAdmin_AlwaysActivatedPluginsList'|translate(pluginsAlwaysActivated) }}
+    </div>
 </div>
+
+
 
 {% endmacro %}

@@ -1,3 +1,5 @@
+{% import '@CorePluginsAdmin/macros.twig' as pluginsMacro %}
+
 <div class="row marketplace-max-width">
 
     {% if (pluginsToShow|length) > 20 or query %}
@@ -83,7 +85,7 @@
                         {% if plugin.numDownloads %}
                             <li>{{ 'General_Downloads'|translate }}: {{ plugin.numDownloads }}</li>
                         {% endif %}
-                        <li>{{ 'CorePluginsAdmin_Developer'|translate }}: {{ pluginsMacro.pluginDeveloper(plugin.owner) }}</li>
+                        <li>{{ 'CorePluginsAdmin_Developer'|translate }}: {{ marketplaceMacro.pluginDeveloper(plugin.owner) }}</li>
                     </ul>
                 </div>
 
@@ -96,26 +98,39 @@
                                 {{ 'CoreUpdater_UpdateTitle'|translate }}
                             </a>
                         {% elseif plugin.missingRequirements|length > 0 or isMultiServerEnvironment %}
-                            <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">
-                                {% if plugin.canBeUpdated and 0 == plugin.missingRequirements|length %}
-                                    {{ 'CorePluginsAdmin_CannotUpdate'|translate }}
-                                {% else %}
-                                    {{ 'CorePluginsAdmin_CannotInstall'|translate }}
-                                {% endif %}
-                            </a>
 
-                            {% if plugin.missingRequirements|length == 0 and plugin.isDownloadable %}
-                                <span onclick="$(this).css('display', 'none')">
-                                    {{ 'General_Or'|translate }}
-                                    <a class="btn btn-link plugin-details download"
-                                       href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': (plugin.name|nonce)}) }}"
-                                    >{{ 'General_Download'|translate }}</a>
-                                </span>
+                            {% macro downloadButton(showOr, plugin, isMultiServerEnvironment) -%}
+                                {%- if plugin.missingRequirements|length == 0 and plugin.isDownloadable and isMultiServerEnvironment -%}
+                                    <span onclick="$(this).css('display', 'none')">
+                                        {%- if showOr %}{{ 'General_Or'|translate }} {% endif -%}
+                                        <a class="btn btn-link plugin-details download"
+                                           href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': (plugin.name|nonce)}) }}"
+                                        >{{ 'General_Download'|translate }}</a></span>
+                                {%- endif -%}
+                            {%- endmacro %}
+
+                            {% if plugin.canBeUpdated and 0 == plugin.missingRequirements|length %}
+                                <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">{{ 'CorePluginsAdmin_CannotUpdate'|translate }}</a>
+                                {{ _self.downloadButton(true, plugin, isMultiServerEnvironment)|raw }}
+                            {% elseif plugin.isInstalled %}
+                                <button class="btn btn-noop" style="padding-right: 0px;">
+                                    {{ 'General_Installed'|translate }}
+                                </button>
+                                ({{ _self.downloadButton(false, plugin, isMultiServerEnvironment)|raw }})
+                            {% else %}
+                                <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">{{ 'CorePluginsAdmin_CannotInstall'|translate }}</a>
+                                {{ _self.downloadButton(true, plugin, isMultiServerEnvironment)|raw }}
                             {% endif %}
+
                         {% elseif plugin.isInstalled %}
-                            <button class="btn btn-noop btn-block">
+                            <button class="btn btn-noop" style="padding-right: 0px;">
                                 {{ 'General_Installed'|translate }}
                             </button>
+
+                            {% if not plugin.isInvalid and not isMultiServerEnvironment and isPluginsAdminEnabled %}
+                                ({{ pluginsMacro.pluginActivateDeactivateAction(plugin.name, plugin.isActivated, plugin.missingRequirements, deactivateNonce, activateNonce) }})
+                            {% endif %}
+
                         {% elseif plugin.isPaid and not plugin.isDownloadable %}
                             <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">
                                 {{ 'General_MoreDetails'|translate }}

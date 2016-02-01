@@ -9,6 +9,7 @@
         "Active": "Active",
         "Activity": "Activity",
         "AllowedUploadFormats": "You may upload a plugin or theme in .zip format via this page.",
+        "AlwaysActivatedPluginsList": "The following plugins are always activated and cannot be disabled: %s",
         "AuthorHomepage": "Author Homepage",
         "Authors": "Authors",
         "BackToExtendPiwik": "Back to Marketplace",

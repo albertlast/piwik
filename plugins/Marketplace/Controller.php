@@ -185,14 +185,15 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $consumer['expireDateLong'] = $expireDate->getLocalized(Date::DATE_FORMAT_LONG);
         }
 
-        $numPaidPluginsNotInstalled = 0;
+        $paidPluginsToInstallAtOnce = [];
         foreach ($paidPlugins as $paidPlugin) {
-            if (!$this->isPluginInstalled($paidPlugin['name'])) {
-                $numPaidPluginsNotInstalled++;
+            if (!$this->isPluginInstalled($paidPlugin)
+                || !$this->getPluginManager()->isPluginActivated($paidPlugin['name'])) {
+                $paidPluginsToInstallAtOnce[] = $paidPlugin['name'];
             }
         }
 
-        $view->numPaidPluginsNotInstalled = $numPaidPluginsNotInstalled;
+        $view->paidPluginsToInstallAtOnce = $paidPluginsToInstallAtOnce;
         $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
         $view->distributor = $this->consumer->getDistributor();
         $view->whitelistedGithubOrgs = $this->consumer->getWhitelistedGithubOrgs();
@@ -211,6 +212,8 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $view->sort = $sort;
         $view->installNonce = Nonce::getNonce(PluginsController::INSTALL_NONCE);
         $view->updateNonce = Nonce::getNonce(PluginsController::UPDATE_NONCE);
+        $view->deactivateNonce = Nonce::getNonce(PluginsController::DEACTIVATE_NONCE);
+        $view->activateNonce = Nonce::getNonce(PluginsController::ACTIVATE_NONCE);
         $view->isSuperUser = Piwik::hasUserSuperUserAccess();
         $view->isPluginsAdminEnabled = CorePluginsAdmin::isPluginsAdminEnabled();
 
@@ -235,13 +238,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                 continue;
             }
 
-            $pluginName = $paidPlugin['name'];
-
-            if ($this->isPluginInstalled($pluginName)) {
+            if ($this->isPluginInstalled($paidPlugin)) {
                 continue;
             }
 
             try {
+                $pluginName = $paidPlugin['name'];
+
                 $this->pluginInstaller->installOrUpdatePluginFromMarketplace($pluginName);
 
             } catch (\Exception $e) {
@@ -333,8 +336,9 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         return Plugin\Manager::getInstance();
     }
 
-    private function isPluginInstalled($pluginName)
+    private function isPluginInstalled($plugin)
     {
+        $pluginName = $plugin['name'];
         $pluginManager = $this->getPluginManager();
 
         return $pluginManager->isPluginInstalled($pluginName)

@@ -32,12 +32,18 @@ class Plugins
      * @var Advertising
      */
     private $advertising;
-    
+
+    /**
+     * @var Plugin\Manager
+     */
+    private $pluginManager;
+
     public function __construct(Api\Client $marketplaceClient, Consumer $consumer, Advertising $advertising)
     {
         $this->marketplaceClient = $marketplaceClient;
         $this->consumer = $consumer;
         $this->advertising = $advertising;
+        $this->pluginManager = Plugin\Manager::getInstance();
     }
 
     public function getPluginInfo($pluginName)
@@ -136,9 +142,8 @@ class Plugins
      */
     public function getPluginsHavingUpdate($themesOnly)
     {
-        $pluginManager = \Piwik\Plugin\Manager::getInstance();
-        $pluginManager->loadAllPluginsAndGetTheirInfo();
-        $loadedPlugins = $pluginManager->getLoadedPlugins();
+        $this->pluginManager->loadAllPluginsAndGetTheirInfo();
+        $loadedPlugins = $this->pluginManager->getLoadedPlugins();
 
         try {
             $pluginsHavingUpdate = $this->marketplaceClient->getInfoOfPluginsHavingUpdate($loadedPlugins, $themesOnly);
@@ -152,7 +157,7 @@ class Plugins
                     && $loadedPlugin->getPluginName() == $updatePlugin['name']
                 ) {
                     $updatePlugin['currentVersion'] = $loadedPlugin->getVersion();
-                    $updatePlugin['isActivated'] = $pluginManager->isPluginActivated($updatePlugin['name']);
+                    $updatePlugin['isActivated'] = $this->pluginManager->isPluginActivated($updatePlugin['name']);
                     $pluginsHavingUpdate[$key] = $this->addMissingRequirements($updatePlugin);
                     break;
                 }
@@ -171,7 +176,9 @@ class Plugins
 
     private function enrichPluginInformation($plugin)
     {
-        $plugin['isInstalled']  = Plugin\Manager::getInstance()->isPluginLoaded($plugin['name']);
+        $plugin['isInstalled']  = $this->pluginManager->isPluginLoaded($plugin['name']);
+        $plugin['isActivated']  = $this->pluginManager->isPluginActivated($plugin['name']);
+        $plugin['isInvalid']    = $this->pluginManager->isPluginThirdPartyAndBogus($plugin['name']);
         $plugin['canBeUpdated'] = $plugin['isInstalled'] && $this->hasPluginUpdate($plugin);
         $plugin['lastUpdated'] = $this->toShortDate($plugin['lastUpdated']);
 

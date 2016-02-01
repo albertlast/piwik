@@ -50,11 +50,17 @@ class Controller extends Plugin\ControllerAdmin
      */
     private $marketplacePlugins;
 
+    /**
+     * @var Plugin\Manager
+     */
+    private $pluginManager;
+
     public function __construct(Translator $translator, PluginInstaller $pluginInstaller, Plugins $marketplacePlugins)
     {
         $this->translator = $translator;
         $this->pluginInstaller = $pluginInstaller;
         $this->marketplacePlugins = $marketplacePlugins;
+        $this->pluginManager = Plugin\Manager::getInstance();
 
         parent::__construct();
     }
@@ -135,7 +141,7 @@ class Controller extends Plugin\ControllerAdmin
             'name'        => $pluginMetadata->name,
             'version'     => $pluginMetadata->version,
             'isTheme'     => !empty($pluginMetadata->theme),
-            'isActivated' => \Piwik\Plugin\Manager::getInstance()->isPluginActivated($pluginMetadata->name)
+            'isActivated' => $this->pluginManager->isPluginActivated($pluginMetadata->name)
         );
 
         return $view->render();
@@ -187,7 +193,7 @@ class Controller extends Plugin\ControllerAdmin
 
         $users = Request::processRequest('UsersManager.getUsers');
         $view->otherUsersCount = count($users) - 1;
-        $view->themeEnabled = \Piwik\Plugin\Manager::getInstance()->getThemeEnabled()->getPluginName();
+        $view->themeEnabled = $this->pluginManager->getThemeEnabled()->getPluginName();
 
         $view->pluginNamesHavingSettings = $this->getPluginNamesHavingSettingsForCurrentUser();
         $view->isMarketplaceEnabled = Marketplace::isMarketplaceEnabled();
@@ -243,12 +249,11 @@ class Controller extends Plugin\ControllerAdmin
 
     protected function getPluginsInfo($themesOnly = false)
     {
-        $pluginManager = \Piwik\Plugin\Manager::getInstance();
-        $plugins = $pluginManager->loadAllPluginsAndGetTheirInfo();
+        $plugins = $this->pluginManager->loadAllPluginsAndGetTheirInfo();
 
         foreach ($plugins as $pluginName => &$plugin) {
 
-            $plugin['isCorePlugin'] = $pluginManager->isPluginBundledWithCore($pluginName);
+            $plugin['isCorePlugin'] = $this->pluginManager->isPluginBundledWithCore($pluginName);
 
             if (!empty($plugin['info']['description'])) {
                 $plugin['info']['description'] = $this->translator->translate($plugin['info']['description']);
@@ -335,7 +340,7 @@ class Controller extends Plugin\ControllerAdmin
         $view->lastError   = $lastError;
         $view->isSuperUser = Piwik::hasUserSuperUserAccess();
         $view->isAnonymousUser = Piwik::isUserIsAnonymous();
-        $view->plugins         = Plugin\Manager::getInstance()->loadAllPluginsAndGetTheirInfo();
+        $view->plugins         = $this->pluginManager->loadAllPluginsAndGetTheirInfo();
         $view->deactivateNonce = Nonce::getNonce(static::DEACTIVATE_NONCE);
         $view->uninstallNonce  = Nonce::getNonce(static::UNINSTALL_NONCE);
         $view->emailSuperUser  = implode(',', Piwik::getAllSuperUserAccessEmailAddresses());
@@ -359,16 +364,9 @@ class Controller extends Plugin\ControllerAdmin
         $pluginName = $this->initPluginModification(static::ACTIVATE_NONCE);
         $this->dieIfPluginsAdminIsDisabled();
 
-        \Piwik\Plugin\Manager::getInstance()->activatePlugin($pluginName);
+        $this->pluginManager->activatePlugin($pluginName);
 
         if ($redirectAfter) {
-            $plugin = \Piwik\Plugin\Manager::getInstance()->loadPlugin($pluginName);
-
-            $actionToRedirect = 'plugins';
-            if ($plugin->isTheme()) {
-                $actionToRedirect = 'themes';
-            }
-
             $message = $this->translator->translate('CorePluginsAdmin_SuccessfullyActicated', array($pluginName));
             if (SettingsManager::hasSystemPluginSettingsForCurrentUser($pluginName)) {
                 $target   = sprintf('<a href="index.php%s#%s">',
@@ -383,7 +381,7 @@ class Controller extends Plugin\ControllerAdmin
             $notification->context = Notification::CONTEXT_SUCCESS;
             Notification\Manager::notify('CorePluginsAdmin_PluginActivated', $notification);
 
-            $this->redirectToIndex('CorePluginsAdmin', $actionToRedirect);
+            $this->redirectAfterModification($redirectAfter);
         }
     }
 
@@ -392,7 +390,7 @@ class Controller extends Plugin\ControllerAdmin
         $pluginName = $this->initPluginModification(static::DEACTIVATE_NONCE);
         $this->dieIfPluginsAdminIsDisabled();
 
-        \Piwik\Plugin\Manager::getInstance()->deactivatePlugin($pluginName);
+        $this->pluginManager->deactivatePlugin($pluginName);
         $this->redirectAfterModification($redirectAfter);
     }
 
@@ -401,7 +399,7 @@ class Controller extends Plugin\ControllerAdmin
         $pluginName = $this->initPluginModification(static::UNINSTALL_NONCE);
         $this->dieIfPluginsAdminIsDisabled();
 
-        $uninstalled = \Piwik\Plugin\Manager::getInstance()->uninstallPlugin($pluginName);
+        $uninstalled = $this->pluginManager->uninstallPlugin($pluginName);
 
         if (!$uninstalled) {
             $path = Filesystem::getPathToPiwikRoot() . '/plugins/' . $pluginName . '/';

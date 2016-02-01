@@ -1,4 +1,4 @@
-{% import '@Marketplace/macros.twig' as pluginsMacro %}
+{% import '@Marketplace/macros.twig' as marketplaceMacro %}
 
 {% block content %}
 
@@ -18,7 +18,7 @@
                     <h2>{{ plugin.name }}</h2>
                     <p class="description">
                         {% if plugin.featured %}
-                            {{ pluginsMacro.featuredIcon('left') }}
+                            {{ marketplaceMacro.featuredIcon('left') }}
                         {% endif %}
                         {{ plugin.description }}
                     </p>
@@ -67,7 +67,7 @@
                         </ul>
 
                         <div id="tabs-description">
-                            {{ pluginsMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
+                            {{ marketplaceMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
 
                             {% if isMultiServerEnvironment %}
                                 <div class="alert alert-warning">{{ 'Marketplace_MultiServerEnvironmentWarning'|translate }}</div>
@@ -84,7 +84,7 @@
 
                         {% if plugin.isDownloadable %}
                             <div id="tabs-changelog">
-                                {{ pluginsMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
+                                {{ marketplaceMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
                                 {% if plugin.canBeUpdated %}
                                     <div class="alert alert-warning">
                                         {{ 'CorePluginsAdmin_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}
@@ -158,7 +158,7 @@
                             <dd title="{{ 'CorePluginsAdmin_NumDownloadsLatestVersion'|translate(latestVersion.numDownloads|number_format) }}">{{ plugin.numDownloads }}</dd>
                         {% endif %}
                         <dt>{{ 'CorePluginsAdmin_Developer'|translate }}</dt>
-                        <dd>{{ pluginsMacro.pluginDeveloper(plugin.owner) }}</dd>
+                        <dd>{{ marketplaceMacro.pluginDeveloper(plugin.owner) }}</dd>
                         <dt>{{ 'CorePluginsAdmin_Authors'|translate }}</dt>
                         <dd>{% for author in plugin.authors if author.name %}
 
