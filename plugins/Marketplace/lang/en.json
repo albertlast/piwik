@@ -17,6 +17,7 @@
     "PaidPluginsNoLicenseKeyIntroNoSuperUserAccess": "Premium features are available for free to all %1$sPiwik PRO%2$s customers, get %3$smore details%4$s.",
     "LicenseKeyExpiresSoon": "Your license key expires soon, please contact %1$s.",
     "FreePluginsLimited": "As a %1$s customer, you can only install plugins developed by %2$s to ensure your Piwik is stable and safe.",
-    "MultiServerEnvironmentWarning": "You cannot install the plugin directly as you are using Piwik on multiple servers. The plugin would be only installed on one server. Instead download the plugin and deploy it manually to all your servers."
+    "MultiServerEnvironmentWarning": "You cannot install the plugin directly as you are using Piwik on multiple servers. The plugin would be only installed on one server. Instead download the plugin and deploy it manually to all your servers.",
+    "PluginExpiredApiError": "The license for plugin '%s' is expired. Please update the license key in the Marketplace or contact Piwik PRO."
   }
 }

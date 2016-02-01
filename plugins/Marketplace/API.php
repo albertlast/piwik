@@ -13,6 +13,7 @@ use Piwik\Option;
 use Piwik\Piwik;
 use Piwik\Plugins\Marketplace\Api\Client;
 use Piwik\Plugins\Marketplace\Api\Service;
+use Piwik\Plugins\Marketplace\Plugins\Expired;
 
 /**
  * API for plugin Marketplace
@@ -31,10 +32,16 @@ class API extends \Piwik\Plugin\API
      */
     private $marketplaceService;
 
-    public function __construct(Service $service, Client $client)
+    /**
+     * @var Expired
+     */
+    private $expired;
+
+    public function __construct(Service $service, Client $client, Expired $expired)
     {
         $this->marketplaceClient  = $client;
         $this->marketplaceService = $service;
+        $this->expired = $expired;
     }
 
     /**
@@ -93,6 +100,7 @@ class API extends \Piwik\Plugin\API
         $key->set($licenseKey);
 
         $this->marketplaceClient->clearAllCacheEntries();
+        $this->expired->clearCache();
     }
 
 }

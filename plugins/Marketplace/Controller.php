@@ -22,7 +22,6 @@ use Piwik\Plugins\CorePluginsAdmin\Controller as PluginsController;
 use Piwik\Plugins\CorePluginsAdmin\CorePluginsAdmin;
 use Piwik\Plugins\CorePluginsAdmin\PluginInstaller;
 use Piwik\ProxyHttp;
-use Piwik\SettingsPiwik;
 use Piwik\Url;
 use Piwik\View;
 use Exception;
@@ -70,6 +69,37 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         $this->pluginInstaller = $pluginInstaller;
 
         parent::__construct();
+    }
+
+    public function expiredLicense()
+    {
+        Piwik::checkUserHasSomeViewAccess();
+
+        $pluginName = Common::getRequestVar('module', null, 'string');
+
+        $pluginManager = $this->getPluginManager();
+
+        if (!$pluginManager->isValidPluginName($pluginName)) {
+            return;
+        }
+
+        $view = new View('@Marketplace/expiredLicense');
+        $this->setBasicVariablesView($view);
+
+        $view->pluginName = $pluginName;
+        $view->deactivateNonce = Nonce::getNonce(PluginsController::DEACTIVATE_NONCE);
+        $view->isTrackerPlugin = false;
+
+        try {
+            $plugin = $pluginManager->getLoadedPlugin($pluginName);
+            if ($plugin) {
+                $view->isTrackerPlugin = $pluginManager->isTrackerPlugin($plugin);
+            }
+        } catch (Exception $e) {
+
+        }
+
+        return $view->render();
     }
 
     public function pluginDetails()
