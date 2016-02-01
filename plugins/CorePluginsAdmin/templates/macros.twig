@@ -1,5 +1,5 @@
 
-{% macro tablePluginUpdates(pluginsHavingUpdate, updateNonce, installNonce, isMultiServerEnvironment) %}
+{% macro tablePluginUpdates(pluginsHavingUpdate, updateNonce, isMultiServerEnvironment) %}
     {% import '@Marketplace/macros.twig' as marketplaceMacro %}
 
     <div class='entityContainer'>
@@ -41,7 +41,7 @@
                     </td>
                     <td class="togl action-links">
                         {% if isMultiServerEnvironment %}
-                            <a onclick="$(this).css('display', 'none')" href="{{ linkTo({'action':'download', 'module': 'Marketplace', 'pluginName': plugin.name, 'nonce': installNonce}) }}">{{ 'General_Download'|translate }}</a>
+                            <a onclick="$(this).css('display', 'none')" href="{{ linkTo({'action':'download', 'module': 'Marketplace', 'pluginName': plugin.name, 'nonce': (plugin.name|nonce)}) }}">{{ 'General_Download'|translate }}</a>
                         {% elseif 0 == plugin.missingRequirements|length %}
                             <a href="{{ linkTo({'action':'updatePlugin', 'pluginName': plugin.name, 'nonce': updateNonce}) }}">{{ 'CoreUpdater_UpdateTitle'|translate }}</a>
                         {% else %}

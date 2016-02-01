@@ -6,10 +6,13 @@
            value="{{ 'CoreUpdater_UpdateTitle'|translate|e('html_attr') }}">
 {% endset %}
 
+{% set isAuthenticatedCustomer = (consumer is not empty and consumer.name) %}
+
 <div class="marketplace-max-width">
     <p>
-        {% if consumer is defined and consumer and consumer.name %}
+        {% if isAuthenticatedCustomer %}
             {% if isSuperUser %}
+
                 {% if consumer.expireDateLong is defined and consumer.expireDateLong %}
                     {{ 'Marketplace_PaidPluginsWithLicenseKeyAndExpireDayIntro'|translate(distributorLink, consumer.expireDateLong, distributorLink)|raw }}
                 {% else %}
@@ -48,3 +51,16 @@
         {% endif %}
     </p>
 </div>
+
+<hr/>
+
+{% include '@Marketplace/plugin-list.twig' %}
+
+{% if isAuthenticatedCustomer and not isMultiServerEnvironment and not isPluginsAdminEnabled %}
+    <h3>{{ 'Marketplace_InstallAllPaidPlugins'|translate }}</h3>
+    <br />
+    <a href="{{ linkTo({'action': 'installAllPaidPlugins', 'nonce': installNonce}) }}" class="btn">
+        {{ 'Marketplace_InstallAllPaidPluginsAction'|translate }}
+    </a>
+    <br /><br />
+{% endif %}

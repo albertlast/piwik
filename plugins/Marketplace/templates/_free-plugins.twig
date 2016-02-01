@@ -47,3 +47,11 @@
         <input class="startUpload" type="submit" value="{{ 'CorePluginsAdmin_UploadZipFile'|translate }}">
     </form>
 </div>
+
+<hr/>
+
+{% include '@Marketplace/plugin-list.twig' %}
+
+<div class="footer-message">
+    {{ 'CorePluginsAdmin_DevelopersLearnHowToDevelopPlugins'|translate('<a href="?module=Proxy&action=redirect&url=http://developer.piwik.org/plugins" target="_blank">', '</a>')|raw }}
+</div>

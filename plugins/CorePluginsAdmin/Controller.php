@@ -183,7 +183,6 @@ class Controller extends Plugin\ControllerAdmin
         $view->activateNonce = Nonce::getNonce(static::ACTIVATE_NONCE);
         $view->uninstallNonce = Nonce::getNonce(static::UNINSTALL_NONCE);
         $view->deactivateNonce = Nonce::getNonce(static::DEACTIVATE_NONCE);
-        $view->installNonce = Nonce::getNonce(static::INSTALL_NONCE);
         $view->pluginsInfo = $this->getPluginsInfo($themesOnly);
 
         $users = Request::processRequest('UsersManager.getUsers');

@@ -103,6 +103,15 @@
                                     {{ 'CorePluginsAdmin_CannotInstall'|translate }}
                                 {% endif %}
                             </a>
+
+                            {% if plugin.missingRequirements|length == 0 and plugin.isDownloadable %}
+                                <span onclick="$(this).css('display', 'none')">
+                                    {{ 'General_Or'|translate }}
+                                    <a class="btn btn-link plugin-details download"
+                                       href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': (plugin.name|nonce)}) }}"
+                                    >{{ 'General_Download'|translate }}</a>
+                                </span>
+                            {% endif %}
                         {% elseif plugin.isInstalled %}
                             <button class="btn btn-noop btn-block">
                                 {{ 'General_Installed'|translate }}

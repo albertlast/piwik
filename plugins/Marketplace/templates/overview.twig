@@ -54,18 +54,10 @@
         </ul>
 
         {% if showPaid %}
-            {% include '@Marketplace/_overview_header_paid.twig' %}
+            {% include '@Marketplace/_paid-plugins.twig' %}
         {% else %}
-            {% include '@Marketplace/_overview_header_free.twig' %}
+            {% include '@Marketplace/_free-plugins.twig' %}
         {% endif %}
-
-        <hr/>
-
-        {% include '@Marketplace/plugin-list.twig' %}
-
-        <div class="footer-message">
-            {{ 'CorePluginsAdmin_DevelopersLearnHowToDevelopPlugins'|translate('<a href="?module=Proxy&action=redirect&url=http://developer.piwik.org/plugins" target="_blank">', '</a>')|raw }}
-        </div>
 
     </div>
 

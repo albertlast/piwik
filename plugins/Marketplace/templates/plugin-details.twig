@@ -30,7 +30,7 @@
                         >{{ 'General_MoreDetails'|translate }}</a>
                     {% elseif isSuperUser %}
                         {% if isMultiServerEnvironment %}
-                            <a onclick="$(this).css('display', 'none')" href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': installNonce}) }}"
+                            <a onclick="$(this).css('display', 'none')" href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': (plugin.name|nonce)}) }}"
                                class="download">{{ 'General_Download'|translate }}</a>
                         {% elseif plugin.canBeUpdated and 0 == plugin.missingRequirements|length %}
                             <a class="install update"
