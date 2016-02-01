@@ -27,7 +27,7 @@
             {% endset %}
 
             {% set paidPluginsLink %}
-                {% if paidPlugins|length %}
+                {% if paidPlugins|length or showPaid %}
                     <li {% if showPlugins and showPaid %}class="active"{% endif %}>
                         <a href="{{ linkTo({'show': 'plugins', 'type': 'paid'}) }}">{{ 'Marketplace_PaidPlugins'|translate }}</a>
                     </li>

@@ -8,7 +8,7 @@
     "LicenseKeyUpdatedSuccess": "License key successfuly updated.",
     "LicenseKeyDeletedSuccess": "License key successfully deleted.",
     "RemoveLicenseKey": "Remove license key",
-    "InstallAllPaidPlugins": "Install and activate all paid plugins at once",
+    "InstallAllPaidPlugins": "Install and activate all %d paid plugins at once",
     "InstallAllPaidPluginsAction": "Install and activate",
     "AllPaidPluginsInstalledAndActivated": "All paid plugins were successfully installed and activated.",
     "PaidPluginsNoLicenseKeyIntro": "Premium features are available for free to all %1$sPiwik PRO%2$s customers. Please insert a licence key below, or get %3$smore details%4$s.",

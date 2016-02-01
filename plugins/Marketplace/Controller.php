@@ -185,6 +185,14 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             $consumer['expireDateLong'] = $expireDate->getLocalized(Date::DATE_FORMAT_LONG);
         }
 
+        $numPaidPluginsNotInstalled = 0;
+        foreach ($paidPlugins as $paidPlugin) {
+            if (!$this->isPluginInstalled($paidPlugin['name'])) {
+                $numPaidPluginsNotInstalled++;
+            }
+        }
+
+        $view->numPaidPluginsNotInstalled = $numPaidPluginsNotInstalled;
         $view->isMultiServerEnvironment = SettingsPiwik::isMultiServerEnvironment();
         $view->distributor = $this->consumer->getDistributor();
         $view->whitelistedGithubOrgs = $this->consumer->getWhitelistedGithubOrgs();
@@ -219,8 +227,6 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         Nonce::checkNonce(PluginsController::INSTALL_NONCE);
 
-        $pluginManager = Plugin\Manager::getInstance();
-
         $paidPlugins = $this->plugins->searchPlugins($query = '', $this->defaultSortMethod, $themes = false, 'paid');
 
         $hasErrors = false;
@@ -231,8 +237,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
             $pluginName = $paidPlugin['name'];
 
-            if ($pluginManager->isPluginInstalled($pluginName)
-                || $pluginManager->isPluginActivated($pluginName)) {
+            if ($this->isPluginInstalled($pluginName)) {
                 continue;
             }
 
@@ -243,7 +248,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
                 $notification = new Notification($e->getMessage());
                 $notification->context = Notification::CONTEXT_ERROR;
-                Notification\Manager::notify('Marketplace_InstallPlugin', $notification);
+                Notification\Manager::notify('Marketplace_Install' . $pluginName, $notification);
 
                 $hasErrors = true;
             }
@@ -254,6 +259,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
             return;
         }
 
+        $pluginManager = $this->getPluginManager();
         $dependency = new Plugin\Dependency();
 
         for ($i = 0; $i <= 5; $i++) {
@@ -271,13 +277,13 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
                     unset($paidPlugins[$index]);
 
                     try {
-                        Plugin\Manager::getInstance()->activatePlugin($pluginName);
+                        $this->getPluginManager()->activatePlugin($pluginName);
                     } catch (Exception $e) {
 
                         $hasErrors = true;
                         $notification = new Notification($e->getMessage());
                         $notification->context = Notification::CONTEXT_ERROR;
-                        Notification\Manager::notify('Marketplace_InstallPlugin', $notification);
+                        Notification\Manager::notify('Marketplace_Install' . $pluginName, $notification);
                     }
                 }
             }
@@ -286,12 +292,12 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         if ($hasErrors) {
             $notification = new Notification('Some paid plugins were not installed successfully');
             $notification->context = Notification::CONTEXT_INFO;
-            Notification\Manager::notify('Marketplace_InstallPlugin', $notification);
         } else {
             $notification = new Notification('All paid plugins were successfully installed.');
             $notification->context = Notification::CONTEXT_SUCCESS;
-            Notification\Manager::notify('Marketplace_InstallPlugin', $notification);
         }
+
+        Notification\Manager::notify('Marketplace_InstallAll', $notification);
 
         Url::redirectToReferrer();
     }
@@ -317,9 +323,23 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
     private function dieIfPluginNameIsInvalid($pluginName)
     {
-        if (!Plugin\Manager::getInstance()->isValidPluginName($pluginName)){
+        if (!$this->getPluginManager()->isValidPluginName($pluginName)){
             throw new Exception('Invalid plugin name given');
         }
+    }
+
+    private function getPluginManager()
+    {
+        return Plugin\Manager::getInstance();
+    }
+
+    private function isPluginInstalled($pluginName)
+    {
+        $pluginManager = $this->getPluginManager();
+
+        return $pluginManager->isPluginInstalled($pluginName)
+            || $pluginManager->isPluginLoaded($pluginName)
+            || $pluginManager->isPluginActivated($pluginName);
     }
 
     protected function configureView($template)

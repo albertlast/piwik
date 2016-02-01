@@ -56,8 +56,8 @@
 
 {% include '@Marketplace/plugin-list.twig' %}
 
-{% if isAuthenticatedCustomer and not isMultiServerEnvironment and not isPluginsAdminEnabled %}
-    <h3>{{ 'Marketplace_InstallAllPaidPlugins'|translate }}</h3>
+{% if isAuthenticatedCustomer and not isMultiServerEnvironment and isPluginsAdminEnabled and numPaidPluginsNotInstalled %}
+    <h3>{{ 'Marketplace_InstallAllPaidPlugins'|translate(numPaidPluginsNotInstalled) }}</h3>
     <br />
     <a href="{{ linkTo({'action': 'installAllPaidPlugins', 'nonce': installNonce}) }}" class="btn">
         {{ 'Marketplace_InstallAllPaidPluginsAction'|translate }}

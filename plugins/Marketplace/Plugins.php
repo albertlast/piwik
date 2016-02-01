@@ -92,7 +92,7 @@ class Plugins
             }
         }
 
-        return $plugins;
+        return array_values($plugins);
     }
 
     private function isPluginDevelopedByDistributors($plugin, $whitelistedDistributors)
