@@ -9,7 +9,6 @@
 namespace Piwik\Plugins\Marketplace;
 
 use Exception;
-use Piwik\Option;
 use Piwik\Piwik;
 use Piwik\Plugins\Marketplace\Api\Client;
 use Piwik\Plugins\Marketplace\Api\Service;

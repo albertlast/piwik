@@ -184,7 +184,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         // we're fetching all available plugins to decide which tabs need to be shown in the UI and to know the number
         // of total available plugins
         $freePlugins = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = false, 'free');
-        $paidPlugins = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = false, 'paid');
+        $paidPlugins = $this->plugins->getPaidPlugins();
         $allThemes   = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = true);
 
         $view = $this->configureView('@Marketplace/overview');
@@ -216,7 +216,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         $paidPluginsToInstallAtOnce = [];
         foreach ($paidPlugins as $paidPlugin) {
-            if (!$this->isPluginInstalled($paidPlugin)
+            if ($this->canPluginBeInstalled($paidPlugin)
                 || !$this->getPluginManager()->isPluginActivated($paidPlugin['name'])) {
                 $paidPluginsToInstallAtOnce[] = $paidPlugin['name'];
             }
@@ -258,20 +258,17 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         Nonce::checkNonce(PluginsController::INSTALL_NONCE);
 
-        $paidPlugins = $this->plugins->searchPlugins($query = '', $this->defaultSortMethod, $themes = false, 'paid');
+        $paidPlugins = $this->plugins->getPaidPlugins();
 
         $hasErrors = false;
         foreach ($paidPlugins as $paidPlugin) {
-            if (empty($paidPlugin['isDownloadable'])) {
+            if (!$this->canPluginBeInstalled($paidPlugin)) {
                 continue;
             }
 
-            if ($this->isPluginInstalled($paidPlugin)) {
-                continue;
-            }
+            $pluginName = $paidPlugin['name'];
 
             try {
-                $pluginName = $paidPlugin['name'];
 
                 $this->pluginInstaller->installOrUpdatePluginFromMarketplace($pluginName);
 
@@ -364,14 +361,20 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         return Plugin\Manager::getInstance();
     }
 
-    private function isPluginInstalled($plugin)
+    private function canPluginBeInstalled($plugin)
     {
+        if (empty($plugin['isDownloadable'])) {
+            return false;
+        }
+
         $pluginName = $plugin['name'];
         $pluginManager = $this->getPluginManager();
 
-        return $pluginManager->isPluginInstalled($pluginName)
+        $isAlreadyInstalled = $pluginManager->isPluginInstalled($pluginName)
             || $pluginManager->isPluginLoaded($pluginName)
             || $pluginManager->isPluginActivated($pluginName);
+
+        return !$isAlreadyInstalled;
     }
 
     protected function configureView($template)

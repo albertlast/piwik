@@ -101,6 +101,11 @@ class Plugins
         return array_values($plugins);
     }
 
+    public function getPaidPlugins()
+    {
+        return $this->searchPlugins($query = '', 'popular', $themes = false, $type = 'paid');
+    }
+
     private function isPluginDevelopedByDistributors($plugin, $whitelistedDistributors)
     {
         if (empty($plugin['owner'])) {
