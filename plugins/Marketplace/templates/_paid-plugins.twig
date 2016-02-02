@@ -6,7 +6,7 @@
            value="{{ 'CoreUpdater_UpdateTitle'|translate|e('html_attr') }}">
 {% endset %}
 
-{% set isAuthenticatedCustomer = (consumer is not empty and consumer.name) %}
+{% set isAuthenticatedCustomer = (consumer is not empty and consumer.isValid) %}
 
 <div class="marketplace-max-width">
     <p>

@@ -29,12 +29,18 @@ class Expired
      */
     private $plugins;
 
+    /**
+     * @var Plugin\Manager
+     */
+    private $pluginManager;
+
     private $cacheKey = 'Marketplace_ExpiredPlugins';
 
     public function __construct(Consumer $consumer, Plugins $plugins)
     {
         $this->consumer = $consumer;
         $this->plugins = $plugins;
+        $this->pluginManager = Plugin\Manager::getInstance();
     }
 
     private function getCache()
@@ -79,7 +85,7 @@ class Expired
 
         $pluginNames = array();
         foreach ($paidPlugins as $paidPlugin) {
-            if (Plugin\Manager::getInstance()->isPluginActivated($paidPlugin['name'])) {
+            if ($this->pluginManager->isPluginActivated($paidPlugin['name'])) {
                 $pluginNames[] = $paidPlugin['name'];
             }
         }

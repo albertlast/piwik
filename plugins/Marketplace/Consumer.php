@@ -33,7 +33,7 @@ class Consumer
     {
         $consumer = $this->getConsumer();
 
-        return !empty($consumer['name']);
+        return !empty($consumer['isValid']);
     }
 
     public function getDistributor()

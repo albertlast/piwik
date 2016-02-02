@@ -73,6 +73,7 @@ class API extends \Piwik\Plugin\API
 
         $licenseKey = trim($licenseKey);
 
+        // we are currently using the Marketplace service directly to 1) change LicenseKey and 2) not use any cache
         $this->marketplaceService->authenticate($licenseKey);
 
         try {
@@ -85,7 +86,11 @@ class API extends \Piwik\Plugin\API
             $consumer = false;
         }
 
-        if (empty($consumer['name'])) {
+        if (!empty($consumer['isExpired'])) {
+            throw new Exception('Entered license key is expired');
+        }
+
+        if (empty($consumer['isValid'])) {
             throw new Exception('Entered license key is not valid');
         }
 

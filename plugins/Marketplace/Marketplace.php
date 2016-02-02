@@ -77,8 +77,7 @@ class Marketplace extends \Piwik\Plugin
 
     public static function isMarketplaceEnabled()
     {
-        return (bool) Config::getInstance()->Marketplace['enabled'] &&
-               Plugin\Manager::getInstance()->isPluginActivated('Marketplace');
+        return Plugin\Manager::getInstance()->isPluginActivated('Marketplace');
     }
 
 }
