@@ -89,7 +89,7 @@
         "TeaserExtendPiwikByPlugin": "Extend Piwik by installing a new plugin",
         "TeaserExtendPiwikByTheme": "Enjoy another look & feel by installing a new theme",
         "TeaserExtendPiwikByUpload": "Extend Piwik by uploading a ZIP file",
-        "InstallingNewPluginViaMarketplaceOrUpload": "You may automatically install plugins from the Marketplace or %1$supload a plugin%2$s in .zip format.",
+        "InstallingNewPluginViaMarketplaceOrUpload": "You may automatically install %1$s from the Marketplace or %2$supload a %3$s%4$s in .zip format.",
         "Theme": "Theme",
         "Themes": "Themes",
         "ThemesDescription": "Themes can change the appearance of Piwik user interface, and provide a completely new visual experience to enjoy your analytics reports.",

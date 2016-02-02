@@ -23,12 +23,12 @@
 
         {% elseif showThemes %}
                 {{ 'CorePluginsAdmin_ThemesDescription'|translate }}
-                {{ 'CorePluginsAdmin_InstallingNewPluginViaMarketplaceOrUpload'|translate('<a href="#" class="uploadPlugin">','</a>')|raw }}
+                {{ 'CorePluginsAdmin_InstallingNewPluginViaMarketplaceOrUpload'|translate(('CorePluginsAdmin_Themes'|translate), '<a href="#" class="uploadPlugin">', ('CorePluginsAdmin_Theme'|translate), '</a>')|raw }}
                 <br />
                 {{ 'CorePluginsAdmin_BeCarefulUsingThemes'|translate }}
         {% else %}
                 {{ 'CorePluginsAdmin_PluginsExtendPiwik'|translate }}
-                {{ 'CorePluginsAdmin_InstallingNewPluginViaMarketplaceOrUpload'|translate('<a href="#" class="uploadPlugin">','</a>')|raw }}
+                {{ 'CorePluginsAdmin_InstallingNewPluginViaMarketplaceOrUpload'|translate(('General_Plugins'|translate), '<a href="#" class="uploadPlugin">', ('General_Plugin'|translate), '</a>')|raw }}
                 <br/>
                 {{ 'CorePluginsAdmin_BeCarefulUsingPlugins'|translate }}
         {% endif %}
