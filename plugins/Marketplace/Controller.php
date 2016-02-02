@@ -21,6 +21,10 @@ use Piwik\Plugin;
 use Piwik\Plugins\CorePluginsAdmin\Controller as PluginsController;
 use Piwik\Plugins\CorePluginsAdmin\CorePluginsAdmin;
 use Piwik\Plugins\CorePluginsAdmin\PluginInstaller;
+use Piwik\Plugins\Marketplace\Input\Mode;
+use Piwik\Plugins\Marketplace\Input\PluginName;
+use Piwik\Plugins\Marketplace\Input\PurchaseType;
+use Piwik\Plugins\Marketplace\Input\Sort;
 use Piwik\ProxyHttp;
 use Piwik\Url;
 use Piwik\View;
@@ -34,8 +38,6 @@ use Exception;
  */
 class Controller extends \Piwik\Plugin\ControllerAdmin
 {
-    private $validSortMethods = array('popular', 'newest', 'alpha');
-    private $defaultSortMethod = 'popular';
 
     /**
      * @var Plugins
@@ -73,22 +75,20 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
     public function expiredLicense()
     {
+        Piwik::checkUserIsNotAnonymous();
         Piwik::checkUserHasSomeViewAccess();
 
-        $pluginName = Common::getRequestVar('module', null, 'string');
+        $pluginName = new PluginName('module');
+        $pluginName = $pluginName->getPluginName();
 
-        $pluginManager = $this->getPluginManager();
-
-        if (!$pluginManager->isValidPluginName($pluginName)) {
-            return;
-        }
-
-        $view = new View('@Marketplace/expiredLicense');
+        $view = new View('@Marketplace/expired-license');
         $this->setBasicVariablesView($view);
 
         $view->pluginName = $pluginName;
         $view->deactivateNonce = Nonce::getNonce(PluginsController::DEACTIVATE_NONCE);
         $view->isTrackerPlugin = false;
+
+        $pluginManager = $this->getPluginManager();
 
         try {
             $plugin = $pluginManager->getLoadedPlugin($pluginName);
@@ -104,17 +104,15 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
     public function pluginDetails()
     {
-        $this->dieIfMarketplaceIsDisabled();
+        $view = $this->configureViewAndCheckPermission('@Marketplace/plugin-details');
 
-        $pluginName = Common::getRequestVar('pluginName', null, 'string');
-        $this->dieIfPluginNameIsInvalid($pluginName);
+        $pluginName = new PluginName();
+        $pluginName = $pluginName->getPluginName();
 
         $activeTab  = Common::getRequestVar('activeTab', '', 'string');
         if ('changelog' !== $activeTab) {
             $activeTab = '';
         }
-
-        $view = $this->configureView('@Marketplace/plugin-details');
 
         try {
             $view->plugin = $this->plugins->getPluginInfo($pluginName);
@@ -133,11 +131,10 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
     {
         Piwik::checkUserHasSuperUserAccess();
 
-        $this->dieIfMarketplaceIsDisabled();
         $this->dieIfPluginsAdminIsDisabled();
 
-        $pluginName = Common::getRequestVar('pluginName');
-        $this->dieIfPluginNameIsInvalid($pluginName);
+        $pluginName = new PluginName();
+        $pluginName = $pluginName->getPluginName();
 
         Nonce::checkNonce($pluginName);
 
@@ -160,48 +157,39 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
     public function overview()
     {
-        $this->dieIfMarketplaceIsDisabled();
+        $view = $this->configureViewAndCheckPermission('@Marketplace/overview');
 
         $show  = Common::getRequestVar('show', 'plugins', 'string');
         $query = Common::getRequestVar('query', '', 'string', $_POST);
-        $sort  = Common::getRequestVar('sort', $this->defaultSortMethod, 'string');
 
-        if (!in_array($sort, $this->validSortMethods)) {
-            $sort = $this->defaultSortMethod;
-        }
+        $sort = new Sort();
+        $sort = $sort->getSort();
 
-        $defaultType = 'free';
-        if ($this->consumer->hasAccessToPaidPlugins()) {
-            $defaultType = 'paid';
-        }
-        $type = Common::getRequestVar('type', $defaultType, 'string');
+        $purchaseType = new PurchaseType($this->consumer);
+        $type = $purchaseType->getPurchaseType();
 
-        $mode = Common::getRequestVar('mode', 'admin', 'string');
-        if (!in_array($mode, array('user', 'admin'))) {
-            $mode = 'admin';
-        }
+        $mode = new Mode();
+        $mode = $mode->getMode();
 
         // we're fetching all available plugins to decide which tabs need to be shown in the UI and to know the number
         // of total available plugins
-        $freePlugins = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = false, 'free');
-        $paidPlugins = $this->plugins->getPaidPlugins();
-        $allThemes   = $this->plugins->searchPlugins($noQuery = '', $this->defaultSortMethod, $themes = true);
-
-        $view = $this->configureView('@Marketplace/overview');
+        $freePlugins = $this->plugins->getAllFreePlugins();
+        $paidPlugins = $this->plugins->getAllPaidPlugins();
+        $allThemes   = $this->plugins->getAllThemes();
 
         $showThemes  = ($show === 'themes');
         $showPlugins = !$showThemes;
-        $showPaid    = ($type === 'paid');
+        $showPaid    = ($type === PurchaseType::TYPE_PAID);
         $showFree    = !$showPaid;
 
         if ($showPlugins && $showPaid) {
-            $type = 'paid';
+            $type = PurchaseType::TYPE_PAID;
             $view->numAvailablePlugins = count($paidPlugins);
         } elseif ($showPlugins && $showFree) {
-            $type = 'free';
+            $type = PurchaseType::TYPE_FREE;
             $view->numAvailablePlugins = count($freePlugins);
         } else {
-            $type = ''; // show all themes
+            $type = PurchaseType::TYPE_ALL;
             $view->numAvailablePlugins = count($allThemes);
         }
 
@@ -252,13 +240,12 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
     {
         Piwik::checkUserHasSuperUserAccess();
 
-        $this->dieIfMarketplaceIsDisabled();
         $this->dieIfPluginsAdminIsDisabled();
         Plugin\ControllerAdmin::displayWarningIfConfigFileNotWritable();
 
         Nonce::checkNonce(PluginsController::INSTALL_NONCE);
 
-        $paidPlugins = $this->plugins->getPaidPlugins();
+        $paidPlugins = $this->plugins->getAllPaidPlugins();
 
         $hasErrors = false;
         foreach ($paidPlugins as $paidPlugin) {
@@ -330,29 +317,11 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         Url::redirectToReferrer();
     }
 
-    private function dieIfMarketplaceIsDisabled()
-    {
-        if (!Marketplace::isMarketplaceEnabled()) {
-            throw new \Exception('The Marketplace feature has been disabled.
-            You may enable the Marketplace by changing the config entry "[Marketplace]enabled = 0" to 1.
-            Please contact your Piwik admins with your request so they can assist.');
-        }
-
-        $this->dieIfPluginsAdminIsDisabled();
-    }
-
     private function dieIfPluginsAdminIsDisabled()
     {
         if (!CorePluginsAdmin::isPluginsAdminEnabled()) {
             throw new \Exception('Enabling, disabling and uninstalling plugins has been disabled by Piwik admins.
             Please contact your Piwik admins with your request so they can assist you.');
-        }
-    }
-
-    private function dieIfPluginNameIsInvalid($pluginName)
-    {
-        if (!$this->getPluginManager()->isValidPluginName($pluginName)){
-            throw new Exception('Invalid plugin name given');
         }
     }
 
@@ -377,7 +346,7 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
         return !$isAlreadyInstalled;
     }
 
-    protected function configureView($template)
+    protected function configureViewAndCheckPermission($template)
     {
         Piwik::checkUserIsNotAnonymous();
 

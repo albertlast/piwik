@@ -86,11 +86,11 @@ class API extends \Piwik\Plugin\API
         }
 
         if (!empty($consumer['isExpired'])) {
-            throw new Exception('Entered license key is expired');
+            throw new Exception(Piwik::translate('Marketplace_ExceptionLinceseKeyIsExpired'));
         }
 
         if (empty($consumer['isValid'])) {
-            throw new Exception('Entered license key is not valid');
+            throw new Exception(Piwik::translate('Marketplace_ExceptionLinceseKeyIsNotValid'));
         }
 
         $this->setLicenseKey($licenseKey);

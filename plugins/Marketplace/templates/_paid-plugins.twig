@@ -19,7 +19,7 @@
                     {{ 'Marketplace_PaidPluginsWithLicenseKeyAndNoExpireDayIntro'|translate(distributorLink)|raw }}
                 {% endif %}
 
-                {% if consumer.showWarningLicenseExpiresSoon %}
+                {% if consumer.isExpiredSoon %}
                     <div class="alert alert-warning">{{ 'Marketplace_LicenseKeyExpiresSoon'|translate(distributorLink)|raw }}</div>
                 {% endif %}
 

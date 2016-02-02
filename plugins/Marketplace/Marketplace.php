@@ -33,11 +33,7 @@ class Marketplace extends \Piwik\Plugin
 
     public function getRenamedModuleAndAction(&$module, &$action)
     {
-        if (!Marketplace::isMarketplaceEnabled()) {
-            return false;
-        }
-
-        $pluginManager = Plugin\Manager::getInstance();
+        $pluginManager = self::getPluginManager();
 
         if ($pluginManager->isPluginBundledWithCore($module)) {
             // make sure to never accidentally hide a core plugin
@@ -77,7 +73,12 @@ class Marketplace extends \Piwik\Plugin
 
     public static function isMarketplaceEnabled()
     {
-        return Plugin\Manager::getInstance()->isPluginActivated('Marketplace');
+        return self::getPluginManager()->isPluginActivated('Marketplace');
+    }
+
+    private static function getPluginManager()
+    {
+        return Plugin\Manager::getInstance();
     }
 
 }

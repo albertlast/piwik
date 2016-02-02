@@ -12,6 +12,8 @@ use Piwik\Date;
 use Piwik\PiwikPro\Advertising;
 use Piwik\Plugin\Dependency as PluginDependency;
 use Piwik\Plugin;
+use Piwik\Plugins\Marketplace\Input\PurchaseType;
+use Piwik\Plugins\Marketplace\Input\Sort;
 
 /**
  *
@@ -57,9 +59,11 @@ class Plugins
     public function getAvailablePluginNames($themesOnly)
     {
         if ($themesOnly) {
-            $plugins = $this->marketplaceClient->searchForThemes('', '', '', '');
+            // we do not use getAllThemes() or getAllPlugins() since those methods would apply a whitelist
+            // github organization filter and here we actually want to get all plugin names.
+            $plugins = $this->marketplaceClient->searchForThemes('', '', SORT::DEFAULT_SORT, PurchaseType::TYPE_ALL);
         } else {
-            $plugins = $this->marketplaceClient->searchForPlugins('', '', '', '');
+            $plugins = $this->marketplaceClient->searchForPlugins('', '', SORT::DEFAULT_SORT, PurchaseType::TYPE_ALL);
         }
 
         $names = array();
@@ -101,9 +105,24 @@ class Plugins
         return array_values($plugins);
     }
 
-    public function getPaidPlugins()
+    public function getAllPaidPlugins()
     {
-        return $this->searchPlugins($query = '', 'popular', $themes = false, $type = 'paid');
+        return $this->searchPlugins($query = '', SORT::DEFAULT_SORT, $themes = false, PurchaseType::TYPE_PAID);
+    }
+
+    public function getAllFreePlugins()
+    {
+        return $this->searchPlugins($query = '', SORT::DEFAULT_SORT, $themes = false, PurchaseType::TYPE_FREE);
+    }
+
+    public function getAllThemes()
+    {
+        return $this->searchPlugins($query = '', SORT::DEFAULT_SORT, $themes = true, PurchaseType::TYPE_ALL);
+    }
+
+    public function getAllPlugins()
+    {
+        return $this->searchPlugins($query = '', SORT::DEFAULT_SORT, $themes = false, PurchaseType::TYPE_ALL);
     }
 
     private function isPluginDevelopedByDistributors($plugin, $whitelistedDistributors)

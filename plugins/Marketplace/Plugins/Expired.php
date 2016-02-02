@@ -81,7 +81,7 @@ class Expired
             return array();
         }
 
-        $paidPlugins = $this->plugins->getPaidPlugins();
+        $paidPlugins = $this->plugins->getAllPaidPlugins();
 
         $pluginNames = array();
         foreach ($paidPlugins as $paidPlugin) {

@@ -7,6 +7,8 @@
     "LicenseKey": "License key",
     "LicenseKeyUpdatedSuccess": "License key successfuly updated.",
     "LicenseKeyDeletedSuccess": "License key successfully deleted.",
+    "ExceptionLinceseKeyIsExpired": "This license key is expired.",
+    "ExceptionLinceseKeyIsNotValid": "This license key is not valid.",
     "RemoveLicenseKey": "Remove license key",
     "InstallAllPaidPlugins": "Install all paid plugins at once",
     "InstallAllPaidPluginsAction": "Install and activate %d plugins",
