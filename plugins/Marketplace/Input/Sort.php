@@ -30,7 +30,7 @@ class Sort
         return $sort;
     }
 
-    public function isValidSortMethod($sortMethod)
+    private function isValidSortMethod($sortMethod)
     {
         $valid = array(self::METHOD_POPULAR, self::METHOD_NEWEST, self::METHOD_ALPHA);
 

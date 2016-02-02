@@ -70,7 +70,7 @@ class Client
      * @param \Piwik\Plugin[] $plugins
      * @return array|mixed
      */
-    public function checkUpdates($plugins)
+    private function checkUpdates($plugins)
     {
         $params = array();
 
