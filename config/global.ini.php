@@ -806,6 +806,7 @@ Plugins[] = DevicePlugins
 Plugins[] = Heartbeat
 Plugins[] = Intl
 Plugins[] = PiwikPro
+Plugins[] = Marketplace
 
 [PluginsInstalled]
 PluginsInstalled[] = Diagnostics

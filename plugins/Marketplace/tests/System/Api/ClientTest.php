@@ -8,11 +8,14 @@
 
 namespace Piwik\Plugins\Marketplace\tests\System\Api;
 
+use Piwik\Cache;
+use Piwik\Plugin;
 use Piwik\Plugins\Marketplace\Api\Client;
 use Piwik\Plugins\Marketplace\Api\Service;
 use Piwik\Plugins\Marketplace\Input\PurchaseType;
 use Piwik\Tests\Framework\TestCase\SystemTestCase;
 use Piwik\Version;
+use Piwik\Plugins\Marketplace\tests\Framework\Mock\Service as TestService;
 
 /**
  * @group Plugins
@@ -32,6 +35,7 @@ class ClientTest extends SystemTestCase
     public function setUp()
     {
         $this->client = $this->buildClient();
+        $this->getCache()->flushAll();
     }
 
     public function test_getPluginInfo_existingPluginOnTheMarketplace()
@@ -147,10 +151,80 @@ class ClientTest extends SystemTestCase
         $this->assertRegExp('/\d+\.\d+\.\d+/', $version);
     }
 
-    private function buildClient()
+    public function test_clientResponse_shouldBeCached()
     {
-        return new Client(new Service($this->domain));
+        $id = 'marketplace.api.2.0.plugins.' . md5(http_build_query(array('keywords' => 'login', 'purchase_type' => '', 'query' => '', 'sort' => '')));
+
+        $cache = $this->getCache();
+        $this->assertFalse($cache->contains($id));
+
+        $this->client->searchForPlugins($keywords = 'login', $query = '', $sort = '', $purchaseType = PurchaseType::TYPE_ALL);
+
+        $this->assertTrue($cache->contains($id));
+        $cachedPlugins = $cache->fetch($id);
+
+        $this->assertInternalType('array', $cachedPlugins);
+        $this->assertNotEmpty($cachedPlugins);
+        $this->assertGreaterThan(30, $cachedPlugins);
     }
 
+    public function test_cachedClientResponse_shouldBeReturned()
+    {
+        $id = 'marketplace.api.2.0.plugins.' . md5(http_build_query(array('keywords' => 'login', 'purchase_type' => '', 'query' => '', 'sort' => '')));
+
+        $cache = $this->getCache();
+        $cache->save($id, array('plugins' => array('foo' => 'bar')));
+
+        $result = $this->client->searchForPlugins($keywords = 'login', $query = '', $sort = '', $purchaseType = PurchaseType::TYPE_ALL);
+
+        $this->assertSame(array('foo' => 'bar'), $result);
+    }
+
+    public function test_getInfoOfPluginsHavingUpdate_()
+    {
+        $service = new TestService($this->domain);
+        $client = $this->buildClient($service);
+        $client->getInfoOfPluginsHavingUpdate(Plugin\Manager::getInstance()->getLoadedPlugins());
+
+        $this->assertSame('plugins/checkUpdates', $service->action);
+        $this->assertSame(array('plugins'), array_keys($service->params));
+
+        $plugins = $service->params['plugins'];
+        $this->assertInternalType('string', $plugins);
+        $this->assertJson($plugins);
+        $plugins = json_decode($plugins, true);
+
+        $names = array(
+            'AnonymousPiwikUsageMeasurement' => true,
+            'CustomAlerts' => true,
+            'CustomDimensions' => true,
+            'LogViewer' => true,
+            'QueuedTracking' => true,
+            'TasksTimetable' => true,
+            'TreemapVisualization' => true,
+            'VisitorGenerator' => true,
+            'SecurityInfo' => true,
+        );
+        foreach ($plugins['plugins'] as $plugin) {
+            $this->assertNotEmpty($plugin['version']);
+            unset($names[$plugin['name']]);
+        }
+
+        $this->assertEmpty($names);
+    }
+
+    private function buildClient($service = null)
+    {
+        if (!isset($service)) {
+            $service = new Service($this->domain);
+        }
+
+        return new Client($service, $this->getCache());
+    }
+
+    private function getCache()
+    {
+        return Cache::getLazyCache();
+    }
 
 }

@@ -10,6 +10,7 @@ namespace Piwik\Plugins\Marketplace\Api;
 
 use Piwik\Cache;
 use Piwik\Http;
+use Piwik\Plugin;
 use Piwik\Plugins\Marketplace\Api\Service;
 use Piwik\SettingsServer;
 use Piwik\Version;
@@ -27,9 +28,21 @@ class Client
      */
     private $service;
 
-    public function __construct(Service $service)
+    /**
+     * @var Cache\Lazy
+     */
+    private $cache;
+
+    /**
+     * @var Plugin\Manager
+     */
+    private $pluginManager;
+
+    public function __construct(Service $service, Cache\Lazy $cache)
     {
         $this->service = $service;
+        $this->cache = $cache;
+        $this->pluginManager = Plugin\Manager::getInstance();
     }
 
     public function getPluginInfo($name)
@@ -76,7 +89,7 @@ class Client
 
         foreach ($plugins as $plugin) {
             $pluginName = $plugin->getPluginName();
-            if (!\Piwik\Plugin\Manager::getInstance()->isPluginBundledWithCore($pluginName)) {
+            if (!$this->pluginManager->isPluginBundledWithCore($pluginName)) {
                 $params[] = array('name' => $plugin->getPluginName(), 'version' => $plugin->getVersion());
             }
         }
@@ -98,10 +111,9 @@ class Client
 
     /**
      * @param  \Piwik\Plugin[] $plugins
-     * @param  bool $themesOnly
      * @return array
      */
-    public function getInfoOfPluginsHavingUpdate($plugins, $themesOnly)
+    public function getInfoOfPluginsHavingUpdate($plugins)
     {
         $hasUpdates = $this->checkUpdates($plugins);
 
@@ -111,9 +123,7 @@ class Client
             $plugin = $this->getPluginInfo($pluginHavingUpdate['name']);
             $plugin['repositoryChangelogUrl'] = $pluginHavingUpdate['repositoryChangelogUrl'];
 
-            if (!empty($plugin['isTheme']) == $themesOnly) {
-                $pluginDetails[] = $plugin;
-            }
+            $pluginDetails[] = $plugin;
         }
 
         return $pluginDetails;
@@ -147,8 +157,7 @@ class Client
         $query = http_build_query($params);
         $cacheId = $this->getCacheKey($action, $query);
 
-        $cache  = $this->buildCache();
-        $result = $cache->fetch($cacheId);
+        $result = $this->cache->fetch($cacheId);
 
         if ($result !== false) {
             return $result;
@@ -160,19 +169,14 @@ class Client
             throw new Exception($e->getMessage(), $e->getCode());
         }
 
-        $cache->save($cacheId, $result, self::CACHE_TIMEOUT_IN_SECONDS);
+        $this->cache->save($cacheId, $result, self::CACHE_TIMEOUT_IN_SECONDS);
 
         return $result;
     }
 
     public function clearAllCacheEntries()
     {
-        $this->buildCache()->flushAll();
-    }
-
-    private function buildCache()
-    {
-        return Cache::getLazyCache();
+        $this->cache->flushAll();
     }
 
     private function getCacheKey($action, $query)

@@ -144,7 +144,7 @@ class Plugins
             return;
         }
 
-        $pluginsHavingUpdate = $this->getPluginsHavingUpdate($plugin['isTheme']);
+        $pluginsHavingUpdate = $this->getPluginsHavingUpdate();
 
         foreach ($pluginsHavingUpdate as $pluginHavingUpdate) {
             if ($plugin['name'] == $pluginHavingUpdate['name']) {
@@ -164,13 +164,13 @@ class Plugins
      * @param bool $themesOnly
      * @return array
      */
-    public function getPluginsHavingUpdate($themesOnly)
+    public function getPluginsHavingUpdate()
     {
         $this->pluginManager->loadAllPluginsAndGetTheirInfo();
         $loadedPlugins = $this->pluginManager->getLoadedPlugins();
 
         try {
-            $pluginsHavingUpdate = $this->marketplaceClient->getInfoOfPluginsHavingUpdate($loadedPlugins, $themesOnly);
+            $pluginsHavingUpdate = $this->marketplaceClient->getInfoOfPluginsHavingUpdate($loadedPlugins);
         } catch (\Exception $e) {
             $pluginsHavingUpdate = array();
         }

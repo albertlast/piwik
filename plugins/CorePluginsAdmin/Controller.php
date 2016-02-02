@@ -205,10 +205,7 @@ class Controller extends Plugin\ControllerAdmin
         if (Marketplace::isMarketplaceEnabled()) {
             try {
                 $view->marketplacePluginNames = $this->marketplacePlugins->getAvailablePluginNames($themesOnly);
-
-                $pluginsHavingUpdate = $this->marketplacePlugins->getPluginsHavingUpdate(true);
-                $themesHavingUpdate  = $this->marketplacePlugins->getPluginsHavingUpdate(false);
-                $view->pluginsHavingUpdate    = $pluginsHavingUpdate + $themesHavingUpdate;
+                $view->pluginsHavingUpdate    = $this->marketplacePlugins->getPluginsHavingUpdate();
             } catch(Exception $e) {
                 // curl exec connection error (ie. server not connected to internet)
             }
