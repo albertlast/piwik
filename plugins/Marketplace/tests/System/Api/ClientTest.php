@@ -180,7 +180,7 @@ class ClientTest extends SystemTestCase
         $this->assertSame(array('foo' => 'bar'), $result);
     }
 
-    public function test_getInfoOfPluginsHavingUpdate_()
+    public function test_getInfoOfPluginsHavingUpdate()
     {
         $service = new TestService($this->domain);
         $client = $this->buildClient($service);

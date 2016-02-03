@@ -120,10 +120,16 @@ class Client
         $pluginDetails = array();
 
         foreach ($hasUpdates as $pluginHavingUpdate) {
-            $plugin = $this->getPluginInfo($pluginHavingUpdate['name']);
-            $plugin['repositoryChangelogUrl'] = $pluginHavingUpdate['repositoryChangelogUrl'];
+            if (empty($pluginHavingUpdate)) {
+                continue;
+            }
 
-            $pluginDetails[] = $plugin;
+            $plugin = $this->getPluginInfo($pluginHavingUpdate['name']);
+
+            if (!empty($plugin)) {
+                $plugin['repositoryChangelogUrl'] = $pluginHavingUpdate['repositoryChangelogUrl'];
+                $pluginDetails[] = $plugin;
+            }
         }
 
         return $pluginDetails;

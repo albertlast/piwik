@@ -38,8 +38,8 @@ class API extends \Piwik\Plugin\API
 
     public function __construct(Service $service, Client $client, Expired $expired)
     {
-        $this->marketplaceClient  = $client;
         $this->marketplaceService = $service;
+        $this->marketplaceClient  = $client;
         $this->expired = $expired;
     }
 

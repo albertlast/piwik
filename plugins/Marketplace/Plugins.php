@@ -200,6 +200,10 @@ class Plugins
 
     private function enrichPluginInformation($plugin)
     {
+        if (empty($plugin)) {
+            return $plugin;
+        }
+
         $plugin['isInstalled']  = $this->pluginManager->isPluginLoaded($plugin['name']);
         $plugin['isActivated']  = $this->pluginManager->isPluginActivated($plugin['name']);
         $plugin['isInvalid']    = $this->pluginManager->isPluginThirdPartyAndBogus($plugin['name']);

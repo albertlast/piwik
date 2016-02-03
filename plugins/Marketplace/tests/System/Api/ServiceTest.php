@@ -35,6 +35,27 @@ class ServiceTest extends SystemTestCase
         $this->assertSame($this->domain, $service->getDomain());
     }
 
+    public function test_authenticate_getAccessToken_shouldSaveToken_IfOnlyHasAlNumValues()
+    {
+        $service = $this->buildService();
+        $service->authenticate('123456789abcdefghij');
+        $this->assertSame('123456789abcdefghij', $service->getAccessToken());
+    }
+
+    public function test_authenticate_getAccessToken_emptyTokenShouldUnsetToken()
+    {
+        $service = $this->buildService();
+        $service->authenticate('');
+        $this->assertNull($service->getAccessToken());
+    }
+
+    public function test_authenticate_getAccessToken_invalidTokenContainingInvalidCharactersShouldBeIgnored()
+    {
+        $service = $this->buildService();
+        $service->authenticate('123_-4?');
+        $this->assertNull($service->getAccessToken());
+    }
+
     public function test_fetch_shouldCallMarketplaceApiWithActionAndReturnArrays()
     {
         $service = $this->buildService();

@@ -9,7 +9,6 @@
 namespace Piwik\Plugins\Marketplace\tests\Integration;
 
 use Piwik\Plugins\Marketplace\Distributor;
-use Piwik\Plugins\Marketplace\LicenseKey;
 use Piwik\Tests\Framework\TestCase\IntegrationTestCase;
 
 /**
