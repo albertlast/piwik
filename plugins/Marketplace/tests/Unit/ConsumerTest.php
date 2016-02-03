@@ -8,8 +8,9 @@
 
 namespace Piwik\Plugins\Marketplace\tests\Unit;
 use Piwik\Plugins\Marketplace\Distributor;
+use Piwik\Plugins\Marketplace\tests\Framework\Mock\Consumer;
 use Piwik\Plugins\Marketplace\tests\Framework\Mock\Service;
-use Piwik\Plugins\Marketplace\Consumer;
+use Piwik\Plugins\Marketplace\tests\Framework\Mock\Consumer as ConsumerBuilder;
 
 /**
  * @group Marketplace
@@ -193,9 +194,28 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         return $tokens;
     }
 
+    public function test_buildValidLicenseKey()
+    {
+        $this->assertTrue(Consumer::buildValidLicense()->hasAccessToPaidPlugins());
+    }
+
+    public function test_buildExpiredLicenseKey()
+    {
+        $consumer = Consumer::buildExpiredLicense()->getConsumer();
+
+        $this->assertFalse($consumer['isValid']);
+        $this->assertTrue($consumer['isExpired']);
+    }
+
+    public function test_buildInvalidLicenseKey()
+    {
+        $consumer = Consumer::buildInvalidLicense()->getConsumer();
+
+        $this->assertNull($consumer);
+    }
+
     private function buildConsumer()
     {
-        $client = \Piwik\Plugins\Marketplace\tests\Framework\Mock\Client::build($this->service);
-        return new Consumer($client);
+        return ConsumerBuilder::build($this->service);
     }
 }

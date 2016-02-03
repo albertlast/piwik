@@ -48,6 +48,11 @@ class Service extends \Piwik\Plugins\Marketplace\Api\Service {
 
     public function download($url, $destinationPath = null, $timeout = null)
     {
+        if ($destinationPath) {
+            file_put_contents($destinationPath, $url);
+            return true;
+        }
+
         if (!empty($this->fixtureToReturn)) {
             if (is_array($this->fixtureToReturn)) {
                 $fixture = array_shift($this->fixtureToReturn);

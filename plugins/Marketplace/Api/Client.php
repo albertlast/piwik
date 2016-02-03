@@ -9,6 +9,9 @@
 namespace Piwik\Plugins\Marketplace\Api;
 
 use Piwik\Cache;
+use Piwik\Common;
+use Piwik\Container\StaticContainer;
+use Piwik\Filesystem;
 use Piwik\Http;
 use Piwik\Plugin;
 use Piwik\Plugins\Marketplace\Api\Service;
@@ -63,7 +66,19 @@ class Client
         return $consumer;
     }
 
-    public function download($pluginOrThemeName, $target)
+    private function getRandomTmpPluginDownloadFilename()
+    {
+        $tmpPluginPath = StaticContainer::get('path.tmp') . '/latest/plugins/';
+
+        // we generate a random unique id as filename to prevent any user could possibly download zip directly by
+        // opening $piwikDomain/tmp/latest/plugins/$pluginName.zip in the browser. Instead we make it harder here
+        // and try to make sure to delete file in case of any error.
+        $tmpPluginFolder = Common::generateUniqId();
+
+        return $tmpPluginPath . $tmpPluginFolder . '.zip';
+    }
+
+    public function download($pluginOrThemeName)
     {
         @ignore_user_abort(true);
         SettingsServer::setMaxExecutionTime(0);
@@ -74,9 +89,19 @@ class Client
             return false;
         }
 
+        // in the beginning we allowed to specify a download path but this way we make sure security is always taken
+        // care of and we always generate a random download filename.
+        $target = $this->getRandomTmpPluginDownloadFilename();
+
+        Filesystem::deleteFileIfExists($target);
+
         $success = $this->service->download($downloadUrl, $target, static::HTTP_REQUEST_TIMEOUT);
 
-        return $success;
+        if ($success) {
+            return $target;
+        }
+
+        return false;
     }
 
     /**

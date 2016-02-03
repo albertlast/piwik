@@ -34,29 +34,31 @@ class Expired
      */
     private $pluginManager;
 
+    /**
+     * @var Cache\Eager
+     */
+    private $cache;
+
     private $cacheKey = 'Marketplace_ExpiredPlugins';
 
-    public function __construct(Consumer $consumer, Plugins $plugins)
+    public function __construct(Consumer $consumer, Plugins $plugins, Cache\Eager $cache)
     {
         $this->consumer = $consumer;
         $this->plugins = $plugins;
         $this->pluginManager = Plugin\Manager::getInstance();
-    }
-
-    private function getCache()
-    {
-        return Cache::getEagerCache();
+        $this->cache = $cache;
     }
 
     public function getNamesOfExpiredPaidPlugins()
     {
-        $cache = $this->getCache();
-
-        if ($cache->contains($this->cacheKey)) {
-            $expiredPlugins = $cache->fetch($this->cacheKey);
+        // it is very important this is cached, otherwise performance may decrease a lot. Eager cache is currently
+        // cached for 12 hours. In case we lower ttl for eager cache it might be worth considering to change to another
+        // cache
+        if ($this->cache->contains($this->cacheKey)) {
+            $expiredPlugins = $this->cache->fetch($this->cacheKey);
         } else {
             $expiredPlugins = $this->getPluginNamesToExpireInCaseLicenseKeyExpired();
-            $cache->save($this->cacheKey, $expiredPlugins);
+            $this->cache->save($this->cacheKey, $expiredPlugins);
         }
 
         return $expiredPlugins;
@@ -64,7 +66,7 @@ class Expired
 
     public function clearCache()
     {
-        $this->getCache()->delete($this->cacheKey);
+        $this->cache->delete($this->cacheKey);
     }
 
     private function getPluginNamesToExpireInCaseLicenseKeyExpired()

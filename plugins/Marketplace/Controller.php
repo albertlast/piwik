@@ -138,21 +138,19 @@ class Controller extends \Piwik\Plugin\ControllerAdmin
 
         Nonce::checkNonce($pluginName);
 
-        // we generate a random unique id as filename to prevent any user could possibly download zip directly by
-        // opening $piwikDomain/tmp/latest/plugins/$pluginName.zip in the browser. Instead we make it harder here
-        // and try to make sure to delete file in case of any error.
-        $target = StaticContainer::get('path.tmp') . '/latest/plugins/' . Common::generateUniqId() . '.zip';
         $filename = $pluginName . '.zip';
 
         try {
-            $this->marketplaceApi->download($pluginName, $target);
-            ProxyHttp::serverStaticFile($target, 'application/zip', $expire = 0, $start = false, $end = false, $filename);
+            $pathToPlugin = $this->marketplaceApi->download($pluginName);
+            ProxyHttp::serverStaticFile($pathToPlugin, 'application/zip', $expire = 0, $start = false, $end = false, $filename);
         } catch (Exception $e) {
             Common::sendResponseCode(500);
             Log::warning('Could not download file . ' . $e->getMessage());
         }
 
-        Filesystem::deleteFileIfExists($target);
+        if (!empty($pathToPlugin)) {
+            Filesystem::deleteFileIfExists($pathToPlugin);
+        }
     }
 
     public function overview()

@@ -9,7 +9,6 @@
 namespace Piwik\Plugins\Marketplace\tests\Unit;
 use Piwik\Config;
 use Piwik\Plugins\Marketplace\tests\Framework\Mock\Service;
-use Piwik\Plugins\Marketplace\Consumer;
 use Piwik\Tests\Framework\TestCase\IntegrationTestCase;
 
 /**
@@ -47,8 +46,7 @@ class ConsumerTest extends IntegrationTestCase
 
     private function buildConsumer()
     {
-        $client = \Piwik\Plugins\Marketplace\tests\Framework\Mock\Client::build($this->service);
-        return new Consumer($client);
+        return \Piwik\Plugins\Marketplace\tests\Framework\Mock\Consumer::build($this->service);
     }
 
 }

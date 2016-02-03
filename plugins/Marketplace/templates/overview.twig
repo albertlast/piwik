@@ -42,7 +42,7 @@
                 {% endif %}
             {% endset %}
 
-            {% if hasAccessToPaidPlugins %}
+            {% if consumer is not empty %}
                 {{ paidPluginsLink }}
                 {{ freePluginsLink }}
                 {{ freeThemesLink }}

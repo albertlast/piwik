@@ -59,10 +59,10 @@
                                 <li><a href="#tabs-changelog">{{ 'CorePluginsAdmin_Changelog'|translate }}</a></li>
                             {% endif %}
                             {% if plugin.screenshots|length %}
-                                <li><a href="#tabs-screenshots">{{ 'CorePluginsAdmin_Screenshots'|translate }}</a></li>
+                                <li><a href="#tabs-screenshots">{{ 'Marketplace_Screenshots'|translate }}</a></li>
                             {% endif %}
                             {% if latestVersion.readmeHtml.support %}
-                                <li><a href="#tabs-support">{{ 'CorePluginsAdmin_Support'|translate }}</a></li>
+                                <li><a href="#tabs-support">{{ 'Marketplace_Support'|translate }}</a></li>
                             {% endif %}
                         </ul>
 
@@ -87,7 +87,7 @@
                                 {{ marketplaceMacro.missingRequirementsPleaseUpdateNotice(plugin) }}
                                 {% if plugin.canBeUpdated %}
                                     <div class="alert alert-warning">
-                                        {{ 'CorePluginsAdmin_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}
+                                        {{ 'Marketplace_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}
                                         {% if plugin.repositoryChangelogUrl %}<a rel="noreferrer"  target="_blank" href="{{ plugin.repositoryChangelogUrl }}">{{ 'CorePluginsAdmin_ViewRepositoryChangelog'|translate }}</a>{% endif %}
                                     </div>
                                 {% endif %}
@@ -110,7 +110,7 @@
                                                     {% endif %}
                                                 </strong>
                                             {% endset %}
-                                            {{ 'CorePluginsAdmin_PluginVersionInfo'|translate(versionName, version.release)|raw }}
+                                            {{ 'Marketplace_PluginVersionInfo'|translate(versionName, version.release)|raw }}
                                             </li>
                                     {% endfor %}
                                 </ul>
@@ -157,9 +157,9 @@
                             <dt>{{ 'General_Downloads'|translate }}</dt>
                             <dd title="{{ 'CorePluginsAdmin_NumDownloadsLatestVersion'|translate(latestVersion.numDownloads|number_format) }}">{{ plugin.numDownloads }}</dd>
                         {% endif %}
-                        <dt>{{ 'CorePluginsAdmin_Developer'|translate }}</dt>
+                        <dt>{{ 'Marketplace_Developer'|translate }}</dt>
                         <dd>{{ marketplaceMacro.pluginDeveloper(plugin.owner) }}</dd>
-                        <dt>{{ 'CorePluginsAdmin_Authors'|translate }}</dt>
+                        <dt>{{ 'Marketplace_Authors'|translate }}</dt>
                         <dd>{% for author in plugin.authors if author.name %}
 
                                 {% spaceless %}
@@ -181,7 +181,7 @@
                         <dt>{{ 'CorePluginsAdmin_Websites'|translate }}</dt>
                         <dd>
                             {% if plugin.homepage %}
-                                <a target="_blank" href="{{ plugin.homepage }}">{{ 'CorePluginsAdmin_PluginWebsite'|translate }}</a>,
+                                <a target="_blank" href="{{ plugin.homepage }}">{{ 'Marketplace_PluginWebsite'|translate }}</a>,
                             {% endif %}
                             <a target="_blank" href="{{ plugin.repositoryUrl }}">GitHub</a></dd>
                         {% if plugin.activity and plugin.activity.numCommits %}
@@ -190,10 +190,10 @@
                                 {{ plugin.activity.numCommits }} commits
 
                                 {% if plugin.activity.numContributors > 1 %}
-                                    {{ 'CorePluginsAdmin_ByXDevelopers'|translate(plugin.activity.numContributors) }}
+                                    {{ 'Marketplace_ByXDevelopers'|translate(plugin.activity.numContributors) }}
                                 {% endif %}
                                 {% if plugin.activity.lastCommitDate %}
-                                    {{ 'CorePluginsAdmin_LastCommitTime'|translate(plugin.activity.lastCommitDate) }}
+                                    {{ 'Marketplace_LastCommitTime'|translate(plugin.activity.lastCommitDate) }}
                                 {% endif %}</dd>
                         {% endif %}
                     </dl>

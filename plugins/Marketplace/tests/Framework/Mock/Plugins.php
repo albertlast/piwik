@@ -8,13 +8,16 @@
 
 namespace Piwik\Plugins\Marketplace\tests\Framework\Mock;
 
-use Piwik\Cache\Backend\NullCache;
-use Piwik\Cache\Lazy;
+class Plugins extends \Piwik\Plugins\Marketplace\Plugins {
 
-class Client {
+    public $paidPlugins = array();
 
-    public static function build($service)
+    public function __construct()
     {
-        return new \Piwik\Plugins\Marketplace\Api\Client($service, new Lazy(new NullCache()));
+    }
+
+    public function getAllPaidPlugins()
+    {
+        return $this->paidPlugins;
     }
 }

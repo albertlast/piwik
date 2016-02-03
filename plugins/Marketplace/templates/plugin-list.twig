@@ -73,19 +73,19 @@
 
                             {% if plugin.canBeUpdated %}
                                     <a class="plugin-details update-available" href="#" data-pluginName="{{ plugin.name }}" data-activePluginTab="changelog"
-                                       title="{{ 'CorePluginsAdmin_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}">
-                                        {{ 'CorePluginsAdmin_NewVersion'|translate }}</a>
+                                       title="{{ 'Marketplace_PluginUpdateAvailable'|translate(plugin.currentVersion, plugin.latestVersion) }}">
+                                        {{ 'Marketplace_NewVersion'|translate }}</a>
                             {% endif %}
                         </li>
 
                         {% if plugin.lastUpdated %}
-                            <li>{{ 'CorePluginsAdmin_Updated'|translate }}: {{ plugin.lastUpdated }}</li>
+                            <li>{{ 'Marketplace_Updated'|translate }}: {{ plugin.lastUpdated }}</li>
                         {% endif %}
 
                         {% if plugin.numDownloads %}
                             <li>{{ 'General_Downloads'|translate }}: {{ plugin.numDownloads }}</li>
                         {% endif %}
-                        <li>{{ 'CorePluginsAdmin_Developer'|translate }}: {{ marketplaceMacro.pluginDeveloper(plugin.owner) }}</li>
+                        <li>{{ 'Marketplace_Developer'|translate }}: {{ marketplaceMacro.pluginDeveloper(plugin.owner) }}</li>
                     </ul>
                 </div>
 
@@ -99,13 +99,13 @@
                             </a>
                         {% elseif plugin.missingRequirements|length > 0 or isMultiServerEnvironment %}
 
-                            {% macro downloadButton(showOr, plugin, isMultiServerEnvironment) -%}
+                            {% macro downloadButton(showOr, plugin, isMultiServerEnvironment, showBrackets = false) -%}
                                 {%- if plugin.missingRequirements|length == 0 and plugin.isDownloadable and isMultiServerEnvironment -%}
-                                    <span onclick="$(this).css('display', 'none')">
+                                    {% if showBrackets %}({% endif %}<span onclick="$(this).css('display', 'none')">
                                         {%- if showOr %}{{ 'General_Or'|translate }} {% endif -%}
                                         <a class="btn btn-link plugin-details download"
                                            href="{{ linkTo({'action': 'download', 'pluginName': plugin.name, 'nonce': (plugin.name|nonce)}) }}"
-                                        >{{ 'General_Download'|translate }}</a></span>
+                                        >{{ 'General_Download'|translate }}</a></span>{% if showBrackets %}){% endif %}
                                 {%- endif -%}
                             {%- endmacro %}
 
@@ -116,7 +116,7 @@
                                 <button class="btn btn-noop" style="padding-right: 0px;">
                                     {{ 'General_Installed'|translate }}
                                 </button>
-                                ({{ _self.downloadButton(false, plugin, isMultiServerEnvironment)|raw }})
+                                {{ _self.downloadButton(false, plugin, isMultiServerEnvironment, true)|raw }}
                             {% else %}
                                 <a class="btn btn-link btn-block plugin-details" href="#" data-pluginName="{{ plugin.name }}" title="{{ 'General_MoreDetails'|translate }}">{{ 'CorePluginsAdmin_CannotInstall'|translate }}</a>
                                 {{ _self.downloadButton(true, plugin, isMultiServerEnvironment)|raw }}

@@ -10,7 +10,6 @@
 namespace Piwik\Plugins\Marketplace\Input;
 use Piwik\Common;
 use Piwik\Plugins\Marketplace\Consumer;
-use Piwik\Plugins\Marketplace\Plugins;
 
 /**
  */
@@ -33,7 +32,11 @@ class PurchaseType
     public function getPurchaseType()
     {
         $defaultType = static::TYPE_FREE;
-        if ($this->consumer->hasAccessToPaidPlugins()) {
+
+        $consumer = $this->consumer->getConsumer();
+        if (!empty($consumer)) {
+            // we load paid plugins by default for valid and for expired licenses (for expired license so they see the
+            // warning about the expired license etc)
             $defaultType = static::TYPE_PAID;
         }
 

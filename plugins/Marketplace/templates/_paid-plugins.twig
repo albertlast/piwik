@@ -9,7 +9,7 @@
 {% set isAuthenticatedCustomer = (consumer is not empty and consumer.isValid) %}
 
 <div class="marketplace-max-width">
-    <p>
+    <p class="marketplace-paid-intro">
         {% if isAuthenticatedCustomer %}
             {% if isSuperUser %}
 
@@ -29,10 +29,13 @@
                 <input id="remove_license_key" class="btn" type="button" value="{{ 'Marketplace_RemoveLicenseKey'|translate|e('html_attr') }}">
 
             {% else %}
-                {{ 'CorePluginsAdmin_NotAllowedToBrowseMarketplacePlugins'|translate }}
+                {{ 'Marketplace_NotAllowedToBrowseMarketplacePlugins'|translate }}
             {% endif %}
 
         {% else %}
+            {% if isSuperUser and consumer is not empty and consumer.isExpired %}
+                <div class="alert alert-warning">{{ 'Marketplace_LicenseKeyIsExpired'|translate(distributorLink)|raw }}</div>
+            {% endif %}
 
             {% set upgradePiwikProLink = 'Marketplace'|piwikProOnPremisesPromoUrl %}
             {% set piwikProLink = 'https://piwik.pro'|piwikProCampaignParameters('Marketplace', 'Marketplace', 'User') %}

@@ -43,7 +43,7 @@ class Marketplace extends \Piwik\Plugin
         $expiredPlugins = StaticContainer::get('Piwik\Plugins\Marketplace\Plugins\Expired');
         $expiredPlugins = $expiredPlugins->getNamesOfExpiredPaidPlugins();
 
-        if (!empty($module) && in_array($module, $expiredPlugins)) {
+        if (!empty($module) && in_array($module, $expiredPlugins, $strict = true)) {
             if ($pluginManager->isValidPluginName($module) && Request::isApiRequest($_GET)) {
                 throw new Exception(Piwik::translate('Marketplace_PluginExpiredApiError', $module));
             }
