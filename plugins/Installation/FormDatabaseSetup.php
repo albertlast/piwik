@@ -238,20 +238,19 @@ class Rule_checkUserPrivileges extends HTML_QuickForm2_Rule
     {
         return array(
             'CREATE'                  => 'CREATE TABLE ' . self::TEST_TABLE_NAME . ' (
-                               id INT AUTO_INCREMENT,
+                               id INT,
                                value INT,
-                               PRIMARY KEY (id),
-                               KEY index_value (value)
+                               PRIMARY KEY (id)
                            )',
             'ALTER'                   => 'ALTER TABLE ' . self::TEST_TABLE_NAME . '
                             ADD COLUMN other_value INT DEFAULT 0',
             'SELECT'                  => 'SELECT * FROM ' . self::TEST_TABLE_NAME,
-            'INSERT'                  => 'INSERT INTO ' . self::TEST_TABLE_NAME . ' (value) VALUES (123)',
+            'INSERT'                  => 'INSERT INTO ' . self::TEST_TABLE_NAME . ' (id,value) VALUES (1,123)',
             'UPDATE'                  => 'UPDATE ' . self::TEST_TABLE_NAME . ' SET value = 456 WHERE id = 1',
             'DELETE'                  => 'DELETE FROM ' . self::TEST_TABLE_NAME . ' WHERE id = 1',
             'DROP'                    => 'DROP TABLE ' . self::TEST_TABLE_NAME,
             'CREATE TEMPORARY TABLES' => 'CREATE TEMPORARY TABLE ' . self::TEST_TEMP_TABLE_NAME . ' (
-                                        id INT AUTO_INCREMENT,
+                                        id INT,
                                         PRIMARY KEY (id)
                                      )',
         );

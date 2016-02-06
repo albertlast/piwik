@@ -97,6 +97,7 @@ class Adapter
             // currently supported by Piwik
             'Pdo\Mysql',
             'Mysqli',
+	    'PgsqlDirect',
 
             // other adapters supported by Zend_Db
 //			'Pdo_Pgsql',
