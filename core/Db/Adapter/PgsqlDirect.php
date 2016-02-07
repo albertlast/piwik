@@ -133,7 +133,7 @@ class PgsqlDirect extends Zend_Db_Adapter_Pgsql implements AdapterInterface
             return pg_connect_errno() == $errno;
         }
 
-        return pg_result_error($this->_connection) == $errno;
+        return pg_last_error($this->_connection) == $errno;
     }
 
     /**
@@ -147,8 +147,17 @@ class PgsqlDirect extends Zend_Db_Adapter_Pgsql implements AdapterInterface
      */
     public function exec($sqlQuery)
     {
+	if(strpos($sqlQuery, 'OCK TABLES')) //no (UN)LOCK
+		return 1;
+		
+	$sqlQuery = str_replace('`', '"', $sqlQuery);
+	
+	if(strpos($sqlQuery, 'OAD DATA INFILE')){
+	    return $this->convertMysqlBulktoPG($sqlQuery);
+	}
+	
         $rc = pg_query($this->_connection, $sqlQuery);
-        $rowsAffected = pg_affected_rows($this->_connection);
+        $rowsAffected = pg_affected_rows($rc);
         if (!is_bool($rc)) {
             pg_free_result($rc);
         }
@@ -181,5 +190,66 @@ class PgsqlDirect extends Zend_Db_Adapter_Pgsql implements AdapterInterface
         $revision = (int)($version % 100);
 
         return $major . '.' . $minor . '.' . $revision;
+    }
+    
+    private function convertMysqlBulktoPG($sqlQuery){
+	preg_match("/\"(\w*)\"/", $sqlQuery, $targetTable);
+	$targetTable = $targetTable[1];
+	
+	pg_query($this->_connection,'CREATE TEMP TABLE '.$targetTable.'_tmp as select * from '.$targetTable.' where 1=0');
+	
+	preg_match("/ESCAPED BY \'(\W*)\'/", $sqlQuery, $escape);
+	$escape = $escape[1];
+	
+	preg_match("/ENCLOSED BY\W*\'(\W*)\'/", $sqlQuery, $enclosed);
+	$enclosed = $enclosed[1];
+	
+	preg_match("/INFILE\W*\'(.*)\'/", $sqlQuery, $path);
+	$path = $path[1];
+	
+	preg_match("/CHARACTER SET\W*(\w*)/", $sqlQuery, $encoding);
+	$encoding = $encoding[1];
+	
+	preg_match("/\((.*)\)/", $sqlQuery, $col);
+	$col = $col[1];
+	
+	$rc = pg_query($this->_connection,'SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+				    FROM   pg_index i
+				    JOIN   pg_attribute a ON a.attrelid = i.indrelid
+							 AND a.attnum = ANY(i.indkey)
+				    WHERE  i.indrelid = \''.$targetTable.'\'::regclass
+				    AND    i.indisprimary');
+	$result = pg_fetch_array($rc);
+	if (is_array($result) && count($result) > 0) {
+	    $pkey = $result['attname'];
+	}  else {
+	    $pkey = '';
+	}
+	
+	$arrayCol= explode(',', $col);
+	$colCount=0;
+	
+	for($i = 0; $i < count($arrayCol); $i++){
+	    if($arrayCol[$i]== $pkey)
+		continue;
+	    
+	    if($colCount > 0)
+		$excludedCol.=',';
+	    $excludedCol .= $arrayCol[$i].' = EXCLUDED.'.$arrayCol[$i];
+	    $colCount++;
+	}
+	
+	$rc = pg_query($this->_connection,'copy "'.$targetTable.'_tmp"('.$col.') from \''.$path.'\' with encoding \''.$encoding.'\'');
+	
+	$inserSQL = 'insert into "'.$targetTable.'"('.$col.') select '.$col.''
+		. ' FROM "'.$targetTable.'_tmp" ON CONFLICT('.$pkey.') DO UPDATE SET '.$excludedCol;
+	
+	$rc = pg_query($this->_connection,$inserSQL);
+	$test = pg_affected_rows($rc);
+	
+	pg_query($this->_connection,'DROP TABLE '.$targetTable.'_tmp');
+	
+	return pg_affected_rows($rc);
+	
     }
 }

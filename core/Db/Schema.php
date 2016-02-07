@@ -55,7 +55,14 @@ class Schema extends Singleton
     {
         $config     = Config::getInstance();
         $dbInfos    = $config->database;
-        $schemaName = trim($dbInfos['schema']);
+	
+	//important for install process
+	if($dbInfos['adapter'] !== 'PGSQLDIRECT')
+	    $schemaName = trim($dbInfos['schema']);
+	else{
+	    $schemaName = 'PGsql';
+	    $dbInfos['schema'] = 'PGsql';
+	}
 
         $className    = self::getSchemaClassName($schemaName);
         $this->schema = new $className();

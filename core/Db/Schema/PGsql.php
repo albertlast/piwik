@@ -226,7 +226,7 @@ class PGsql implements SchemaInterface
                                       date2 DATE NULL,
                                       period INT NULL,
                                       ts_archived timestamp with time zone NULL,
-                                      value DOUBLE NULL,
+                                      "value" double precision NULL,
                                         PRIMARY KEY(idarchive, name)
                                       );
 				      
@@ -401,6 +401,13 @@ class PGsql implements SchemaInterface
      */
     public function createTable($nameWithoutPrefix, $createDefinition)
     {
+	$createDefinition = preg_replace("/ INT\(\w*\)/i", ' INT', $createDefinition);
+	$createDefinition = preg_replace("/ INTEGER\(\w*\)/i", ' INT', $createDefinition);
+	$createDefinition = preg_replace("/TINYINT\(\w\)/i", 'SMALLINT', $createDefinition);
+	$createDefinition = preg_replace("/TINYINT/i", 'SMALLINT', $createDefinition);
+	$createDefinition = preg_replace("/INT\(\w*\) NOT NULL AUTO_INCREMENT/i", 'SERIAL', $createDefinition);
+	$createDefinition = preg_replace("/INT NOT NULL AUTO_INCREMENT/i", 'SERIAL', $createDefinition);
+	
         $statement = sprintf("CREATE TABLE %s ( %s ) ;",
                              Common::prefixTable($nameWithoutPrefix),
                              $createDefinition,
